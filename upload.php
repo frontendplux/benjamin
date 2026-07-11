@@ -9,7 +9,7 @@ header('Content-Type: application/json');
 
 // ---- Configuration ----
 $uploadDir       = __DIR__ . '/uploads/';          // folder to store files
-$maxFileSize     = 50 * 1024 * 1024;               // 50 MB max
+$maxFileSize     = 10000 * 1024 * 1024;               // 50 MB max
 $allowedImageExt = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
 $allowedVideoExt = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'wmv'];
 $allowedExt      = array_merge($allowedImageExt, $allowedVideoExt);
