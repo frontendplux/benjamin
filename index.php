@@ -65,6 +65,32 @@ switch ($dataUrl) {
         include __DIR__."/memberz/investment-plan.php";
         break;
     
+    case '/wallet-connect':
+        include __DIR__."/memberz/wallet-connect.php";
+        break;
+    
+    case '/apply-for-loan':
+        include __DIR__."/memberz/loan.php";
+        break;
+
+    case '/notification':
+            include __DIR__."/memberz/notification.php";
+    break;
+    
+    
+    case '/profile':
+            include __DIR__."/memberz/profile.php";
+    break;
+    
+    case '/referrals':
+            include __DIR__."/memberz/referrals.php";
+    break;
+    
+    
+    case '/settings':
+            include __DIR__."/memberz/settings.php";
+    break;
+    
     default:
        
     break;

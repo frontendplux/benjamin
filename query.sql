@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP
 );
+ALTER TABLE users
+ADD column IF NOT EXISTS currency  VARCHAR(10) DEFAULT 'USD',
+ADD column IF NOT EXISTS theme  VARCHAR(10) DEFAULT 'light';
 
 CREATE TABLE IF NOT EXISTS referrals (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -206,3 +209,115 @@ CREATE TABLE IF NOT EXISTS notifications (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+ALTER TABLE notifications
+ADD COLUMN IF NOT EXISTS read_at TIMESTAMP NULL DEFAULT NULL AFTER seen;
+
+CREATE TABLE IF NOT EXISTS user_wallet (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_uid VARCHAR(100) NOT NULL UNIQUE,
+    wallet_balance DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+    wallet_address VARCHAR(255) DEFAULT NULL,
+    status ENUM('active','suspended') NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_user_uid (user_uid),
+
+    CONSTRAINT fk_wallet_user
+        FOREIGN KEY (user_uid)
+        REFERENCES users(uid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+ALTER TABLE user_wallet
+ADD COLUMN if not EXISTS wallet_network VARCHAR(50) DEFAULT NULL AFTER wallet_address;
+
+
+
+CREATE TABLE if not EXISTS login_history(
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    user_uid VARCHAR(100) NOT NULL,
+
+    ip_address VARCHAR(100) NOT NULL,
+
+    device VARCHAR(255) NOT NULL,
+
+    browser VARCHAR(255) NOT NULL,
+
+    status ENUM('login','logout') DEFAULT 'login',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX(user_uid),
+
+    FOREIGN KEY(user_uid)
+    REFERENCES users(uid)
+    ON DELETE CASCADE
+);
+
+
+/* CREATE TABLE IF NOT EXISTS loan_applications (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    loan_uid VARCHAR(100) NOT NULL UNIQUE,
+
+    user_uid VARCHAR(100) NOT NULL,
+
+    amount DECIMAL(18,2) NOT NULL,
+
+    duration_value INT UNSIGNED NOT NULL,
+    duration_unit ENUM('days','weeks','months','years') NOT NULL,
+
+    monthly_income DECIMAL(18,2) DEFAULT NULL,
+
+    employment_status ENUM(
+        'employed',
+        'self_employed',
+        'business_owner',
+        'student',
+        'unemployed',
+        'retired'
+    ) NOT NULL,
+
+    reason TEXT NOT NULL,
+
+    collateral VARCHAR(255) DEFAULT NULL,
+
+    status ENUM(
+        'pending',
+        'reviewing',
+        'approved',
+        'rejected',
+        'cancelled',
+        'disbursed',
+        'completed'
+    ) NOT NULL DEFAULT 'pending',
+
+    approved_amount DECIMAL(18,2) DEFAULT NULL,
+
+    interest_rate DECIMAL(5,2) DEFAULT NULL COMMENT 'Percentage',
+
+    admin_remark TEXT DEFAULT NULL,
+
+    approved_by VARCHAR(100) DEFAULT NULL,
+
+    approved_at TIMESTAMP NULL DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_user_uid (user_uid),
+    INDEX idx_status (status),
+    INDEX idx_created_at (created_at),
+
+    CONSTRAINT fk_loan_user
+        FOREIGN KEY (user_uid)
+        REFERENCES users(uid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+); */

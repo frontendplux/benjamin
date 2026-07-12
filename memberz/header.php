@@ -18,11 +18,11 @@ $closeMenuMe = [
     ['Dashboard','/member','bi-grid-1x2-fill'],
     ['Make Deposit','/make-deposit','bi-wallet2'],
     ['Apply for Loan','/apply-for-loan','bi-bank'],
-    ['Investment Plans','/investment-plans','bi-pie-chart'],
-    ['Promo Plans','/promo-plans','bi-gift'],
+    ['My Plans','/investment-plans','bi-pie-chart'],
+    // ['Promo Plans','/promo-plans','bi-gift'],
     ['Wallet Connect','/wallet-connect','bi-plugin'],
-    ['Withdraw Funds','/withdraw-funds','bi-arrow-down-left-circle'],
-    ['Beneficiary Shares','/beneficiary-shares','bi-chevron-down'],
+    // ['Withdraw Funds','/withdraw-funds','bi-arrow-down-left-circle'],
+    // ['Beneficiary Shares','/beneficiary-shares','bi-chevron-down'],
     ['Account History','/account-history','bi-chevron-down'],
     ['Referrals','/referrals','bi-people']
 ];

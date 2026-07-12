@@ -903,7 +903,563 @@ case "/member/submit-deposit-proof":
     }
 
 break;
-   
+
+case "/member/wallet-link":
+
+
+    if($_SERVER['REQUEST_METHOD'] !== "POST"){
+
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Invalid request method"
+        ]);
+
+        break;
+    }
+
+
+
+    if(session_status() === PHP_SESSION_NONE){
+
+        session_start();
+
+    }
+
+
+
+    if(empty($_SESSION['user_id'])){
+
+
+        echo json_encode([
+
+            "success"=>false,
+
+            "message"=>"Session expired"
+
+        ]);
+
+
+        break;
+
+    }
+
+
+
+    $user_uid=$_SESSION['user_id'];
+
+
+
+    $data=json_decode(file_get_contents("php://input"),true);
+
+
+
+    $wallet_address=trim($data['wallet_address'] ?? "");
+
+    $wallet_network=trim($data['wallet_network'] ?? "");
+
+
+
+
+    if(empty($wallet_address) || empty($wallet_network)){
+
+
+        echo json_encode([
+
+            "success"=>false,
+
+            "message"=>"Wallet address and network required"
+
+        ]);
+
+        break;
+
+    }
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Allowed Networks
+    |--------------------------------------------------------------------------
+    */
+
+
+    $allowedNetworks=[
+
+        "TRC20",
+        "ERC20",
+        "BEP20",
+        "BTC",
+        "ETH"
+
+    ];
+
+
+
+    if(!in_array($wallet_network,$allowedNetworks)){
+
+
+        echo json_encode([
+
+            "success"=>false,
+
+            "message"=>"Unsupported wallet network"
+
+        ]);
+
+
+        break;
+
+    }
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Check existing wallet
+    |--------------------------------------------------------------------------
+    */
+
+
+    $check=$conn->prepare("
+        SELECT id
+        FROM user_wallet
+        WHERE user_uid=?
+        LIMIT 1
+    ");
+
+
+    $check->bind_param(
+        "s",
+        $user_uid
+    );
+
+
+    $check->execute();
+
+
+    $exists=$check->get_result();
+
+
+
+
+    if($exists->num_rows > 0){
+
+
+
+        /*
+        Update wallet
+        */
+
+
+        $update=$conn->prepare("
+
+            UPDATE user_wallet SET
+
+            wallet_address=?,
+
+            wallet_network=?,
+
+            status='active'
+
+            WHERE user_uid=?
+
+        ");
+
+
+
+        $update->bind_param(
+
+            "sss",
+
+            $wallet_address,
+
+            $wallet_network,
+
+            $user_uid
+
+        );
+
+
+
+        $update->execute();
+
+
+
+
+    }else{
+
+
+
+        /*
+        Create wallet
+        */
+
+
+        $insert=$conn->prepare("
+
+            INSERT INTO user_wallet
+
+            (
+                user_uid,
+                wallet_address,
+                wallet_network
+            )
+
+            VALUES
+            (?,?,?)
+
+        ");
+
+
+
+        $insert->bind_param(
+
+            "sss",
+
+            $user_uid,
+
+            $wallet_address,
+
+            $wallet_network
+
+        );
+
+
+
+        $insert->execute();
+
+
+
+    }
+
+
+
+
+
+    echo json_encode([
+
+        "success"=>true,
+
+        "message"=>"Wallet address linked successfully"
+
+    ]);
+break;
+
+case "/member/wallet-remove":
+
+    if($_SERVER['REQUEST_METHOD'] !== "POST"){
+
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Invalid request method"
+        ]);
+
+        break;
+    }
+
+
+    if(session_status() === PHP_SESSION_NONE){
+        session_start();
+    }
+
+
+    if(empty($_SESSION['user_id'])){
+
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Session expired"
+        ]);
+
+        break;
+    }
+
+
+    $user_uid = $_SESSION['user_id'];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove Wallet Address Only
+    | Keep Balance And Funding History
+    |--------------------------------------------------------------------------
+    */
+
+    $remove = $conn->prepare("
+        UPDATE user_wallet
+        SET
+            wallet_address = NULL,
+            wallet_network = NULL,
+            status = 'suspended'
+        WHERE user_uid = ?
+    ");
+
+
+    $remove->bind_param(
+        "s",
+        $user_uid
+    );
+
+
+    if($remove->execute()){
+
+
+        echo json_encode([
+
+            "success"=>true,
+
+            "message"=>"Wallet address removed. Your funds remain safe."
+
+        ]);
+
+
+    }else{
+
+
+        echo json_encode([
+
+            "success"=>false,
+
+            "message"=>"Unable to remove wallet address"
+
+        ]);
+
+    }
+
+
+break;
+
+
+case "/member/notification/read":
+
+$data=json_decode(file_get_contents("php://input"),true);
+
+$id=(int)$data['id'];
+
+$user_uid=$_SESSION['user_id'];
+
+$query=$conn->prepare("
+UPDATE notifications
+SET
+seen=1,
+read_at=NOW()
+WHERE
+id=?
+AND
+user_uid=?
+");
+
+$query->bind_param(
+"is",
+$id,
+$user_uid
+);
+
+$query->execute();
+
+echo json_encode([
+"success"=>true
+]);
+
+break;
+
+
+case "/member/notification/read-all":
+
+$user_uid=$_SESSION['user_id'];
+
+$query=$conn->prepare("
+UPDATE notifications
+SET
+seen=1,
+read_at=NOW()
+WHERE
+user_uid=?
+AND
+seen=0
+");
+
+$query->bind_param(
+"s",
+$user_uid
+);
+
+$query->execute();
+
+echo json_encode([
+"success"=>true
+]);
+
+break;
+
+case "/member/notification/delete":
+
+$data=json_decode(file_get_contents("php://input"),true);
+
+$id=(int)$data['id'];
+
+$user_uid=$_SESSION['user_id'];
+
+$query=$conn->prepare("
+DELETE
+FROM notifications
+WHERE
+id=?
+AND
+user_uid=?
+");
+
+$query->bind_param(
+"is",
+$id,
+$user_uid
+);
+
+$query->execute();
+
+echo json_encode([
+"success"=>true
+]);
+
+break;
+
+case "/member/profile/update":
+
+if(empty($_SESSION['user_id'])){
+
+echo json_encode([
+"success"=>false,
+"message"=>"Session expired"
+]);
+
+break;
+
+}
+
+$data=json_decode(file_get_contents("php://input"),true);
+
+$first_name=trim($data['first_name'] ?? "");
+$last_name=trim($data['last_name'] ?? "");
+$phone=trim($data['phone'] ?? "");
+$country=trim($data['country'] ?? "");
+$currency=trim($data['currency'] ?? "USD");
+$theme=trim($data['theme'] ?? "light");
+
+if(
+empty($first_name) ||
+empty($last_name)
+){
+
+echo json_encode([
+"success"=>false,
+"message"=>"All required fields are required."
+]);
+
+break;
+
+}
+
+$update=$conn->prepare("
+UPDATE users
+SET
+first_name=?,
+last_name=?,
+phone=?,
+country=?,
+currency=?,
+theme=?
+WHERE uid=?
+");
+
+$update->bind_param(
+"sssssss",
+$first_name,
+$last_name,
+$phone,
+$country,
+$currency,
+$theme,
+$_SESSION['user_id']
+);
+
+$update->execute();
+
+$_SESSION['theme']=$theme;
+
+echo json_encode([
+"success"=>true,
+"message"=>"Profile updated successfully."
+]);
+
+break;
+
+case "/member/change-password":
+
+if(empty($_SESSION['user_id'])){
+
+echo json_encode([
+"success"=>false,
+"message"=>"Session expired"
+]);
+
+break;
+
+}
+
+$data=json_decode(file_get_contents("php://input"),true);
+
+$old=trim($data['old_password']);
+$new=trim($data['new_password']);
+
+$get=$conn->prepare("
+SELECT password
+FROM users
+WHERE uid=?
+LIMIT 1
+");
+
+$get->bind_param("s",$_SESSION['user_id']);
+$get->execute();
+
+$get->bind_result($hash);
+$get->fetch();
+$get->close();
+
+if(!password_verify($old,$hash)){
+
+echo json_encode([
+"success"=>false,
+"message"=>"Current password is incorrect."
+]);
+
+break;
+
+}
+
+$newHash=password_hash($new,PASSWORD_DEFAULT);
+
+$update=$conn->prepare("
+UPDATE users
+SET password=?
+WHERE uid=?
+");
+
+$update->bind_param(
+"ss",
+$newHash,
+$_SESSION['user_id']
+);
+
+$update->execute();
+
+echo json_encode([
+"success"=>true,
+"message"=>"Password updated successfully."
+]);
+
+break;
+
         echo json_encode([
             "success" => false,
             "message" => "Invalid request."

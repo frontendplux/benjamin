@@ -1,7 +1,7 @@
 <?php
 include __DIR__."/header.php";
 
-$user_id = $_SESSION['user_id'];
+$user_uid = $user['uid'];
 
 // 1. DETERMINE CURRENT ACTIVE FILTER STATUS
 // Supported states: 'pending', 'reviewing', 'approved', 'all'
@@ -21,10 +21,11 @@ $counts = ['pending' => 0, 'reviewing' => 0, 'approved' => 0, 'all' => 0];
 $count_query = $conn->prepare("
     SELECT status, COUNT(*) as aggregate 
     FROM deposits 
-    WHERE user_uid = ? 
+    WHERE user_uid = ?
     GROUP BY status
 ");
-$count_query->bind_param("i", $user_id);
+
+$count_query->bind_param("s", $user_uid);
 $count_query->execute();
 $count_result = $count_query->get_result();
 
@@ -68,9 +69,24 @@ $data_sql = "
 
 $data_stmt = $conn->prepare($data_sql);
 if ($current_status !== 'all') {
-    $data_stmt->bind_param("isii", $user_id, $current_status, $items_per_page, $offset);
+
+    $data_stmt->bind_param(
+        "ssii",
+        $user_uid,
+        $current_status,
+        $items_per_page,
+        $offset
+    );
+
 } else {
-    $data_stmt->bind_param("iii", $user_id, $items_per_page, $offset);
+
+    $data_stmt->bind_param(
+        "sii",
+        $user_uid,
+        $items_per_page,
+        $offset
+    );
+
 }
 $data_stmt->execute();
 $plans_result = $data_stmt->get_result();
@@ -140,8 +156,8 @@ $plans_result = $data_stmt->get_result();
               <div class="row align-items-center g-3">
                 
                 <div class="col-md-4">
-                  <span class="text-muted font-monospace d-block mb-1" style="font-size: 11px;">UID: <?= $plan['deposit_uid'] ?></span>
-                  <h6 class="fw-bold text-dark mb-1"><?= ucwords(str_replace('_', ' ', $plan['package_name'])) ?></h6>
+                  <span class="text-muted font-monospace d-block mb-1" style="font-size: 11px;">UID: <?= htmlspecialchars($plan['deposit_uid']) ?></span>
+                  <h6 class="fw-bold text-dark mb-1"><?= htmlspecialchars(ucwords(str_replace('_',' ',$plan['package_name']))) ?></h6>
                   <span class="fs-5 fw-bold font-monospace text-dark">$<?= number_format($plan['amount'], 2) ?> <span class="fs-7 text-secondary fw-normal">USDT</span></span>
                 </div>
 

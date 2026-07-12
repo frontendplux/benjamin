@@ -29,6 +29,151 @@ if ($result->num_rows > 0) {
         "data" => $result->fetch_assoc()
     ];
 }
+
+
+// ==================================================
+
+$user_uid = $user['uid'];
+
+/*
+|--------------------------------------------------------------------------
+| Wallet Balance
+|--------------------------------------------------------------------------
+*/
+$wallet_balance = 0;
+
+$wallet = $conn->prepare("
+    SELECT wallet_balance
+    FROM user_wallet
+    WHERE user_uid = ?
+    LIMIT 1
+");
+$wallet->bind_param("s", $user_uid);
+$wallet->execute();
+$wallet_result = $wallet->get_result();
+
+if ($wallet_result->num_rows) {
+    $wallet_balance = (float)$wallet_result->fetch_assoc()['wallet_balance'];
+}
+
+/*
+|--------------------------------------------------------------------------
+| Active Investments
+|--------------------------------------------------------------------------
+*/
+
+$total_investment = 0;
+$total_profit = 0;
+
+$investment = $conn->prepare("
+SELECT
+    d.amount,
+    d.approved_at,
+
+    p.roi,
+    p.duration_value,
+    p.duration_unit
+
+FROM deposits d
+
+INNER JOIN investment_plan p
+ON p.id=d.investment_plan_id
+
+WHERE
+    d.user_uid=?
+AND d.status='approved'
+");
+
+$investment->bind_param("s",$user_uid);
+$investment->execute();
+
+$result=$investment->get_result();
+
+$now=time();
+
+while($row=$result->fetch_assoc()){
+
+    $expiry=new DateTime($row['approved_at']);
+
+    switch($row['duration_unit']){
+
+        case 'hours':
+            $expiry->modify("+{$row['duration_value']} hours");
+        break;
+
+        case 'days':
+            $expiry->modify("+{$row['duration_value']} days");
+        break;
+
+        case 'weeks':
+            $expiry->modify("+{$row['duration_value']} weeks");
+        break;
+
+        case 'months':
+            $expiry->modify("+{$row['duration_value']} months");
+        break;
+
+        case 'years':
+            $expiry->modify("+{$row['duration_value']} years");
+        break;
+    }
+
+    if($expiry->getTimestamp()>$now){
+
+        $total_investment += $row['amount'];
+
+        $total_profit += ($row['amount'] * $row['roi']) / 100;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Pending Referral Bonus
+|--------------------------------------------------------------------------
+|
+| 10% of each referred user's FIRST approved investment
+|
+*/
+
+$pending_referral_bonus=0;
+
+$referral=$conn->prepare("
+SELECT uid
+FROM referrals
+WHERE referred_by=?
+AND status='pending'
+");
+
+$referral->bind_param("s",$user_uid);
+$referral->execute();
+
+$referrals=$referral->get_result();
+
+while($ref=$referrals->fetch_assoc()){
+
+    $firstDeposit=$conn->prepare("
+        SELECT
+            d.amount
+        FROM deposits d
+        WHERE
+            d.user_uid=?
+        AND d.status='approved'
+        ORDER BY d.approved_at ASC
+        LIMIT 1
+    ");
+
+    $firstDeposit->bind_param("s",$ref['uid']);
+    $firstDeposit->execute();
+
+    $deposit=$firstDeposit->get_result();
+
+    if($deposit->num_rows){
+
+        $amount=(float)$deposit->fetch_assoc()['amount'];
+
+        $pending_referral_bonus += ($amount * 10)/100;
+    }
+}
 ?>
 
 <!-- ANDROID-STYLE SLIDER DRAWER PANEL (OFFCANVAS) -->
@@ -65,11 +210,13 @@ if ($result->num_rows > 0) {
     <div>
       <span class="badge bg-white bg-opacity-25 text-white rounded-pill px-3 py-1 small mb-3">Live Valuation</span>
       <h3 class="fw-normal opacity-75 fs-5">Available Balance</h3>
-      <div class="display-4 fw-bold my-2">$0.20</div>
+      <div class="display-4 fw-bold my-2">
+          $<?= number_format($wallet_balance,2) ?>
+      </div>
     </div>
 
     <div class="pt-3 border-top gap-2 border-white border-opacity-10 small d-flex justify-content-end">
-      <a href="/withdraw.php" class="btn btn-light text-success fw-bold py-2 col-lg-12 rounded-3 shadow-sm d-flex align-items-center justify-content-center">
+      <a href="/withdraw-funds" class="btn btn-light text-success fw-bold py-2 col-lg-12 rounded-3 shadow-sm d-flex align-items-center justify-content-center">
         <i class="bi bi-arrow-down-left-circle me-2"></i>Withdraw
       </a>
       <!-- <a href="/withdraw.php" class="btn btn-light text-success fw-bold w-100 py-2 rounded-3 shadow-sm d-flex align-items-center justify-content-center">
@@ -90,20 +237,21 @@ if ($result->num_rows > 0) {
                     
                     <!-- Total Profit Box -->
                     <div class="p-3 bg-success rounded-4 text-white shadow-sm">
-                      <span class="small d-block opacity-75">Total Profit</span>
-                      <span class="fs-4 fw-bold">$1,109.20</span>
+                      <span class="small d-block opacity-75">Total Investment</span>
+                      <span class="fs-4 fw-bold">$<?= number_format($total_investment,2) ?></span>
                     </div>
 
                     <!-- Total Bonus Box -->
                     <div class="p-3 bg-light rounded-4 border">
-                      <span class="small d-block text-muted">Total Bonus</span>
-                      <span class="fs-5 fw-bold text-dark">$0.00</span>
+                      <span class="small d-block text-muted">Total Profit</span>
+                      <span class="fs-5 fw-bold text-dark">$<?= number_format($total_profit,2) ?></span>
                     </div>
 
                     <!-- Total Deposit Box -->
                     <div class="p-3 bg-light rounded-4 border">
-                      <span class="small d-block text-muted">Total Deposit</span>
-                      <span class="fs-5 fw-bold text-dark">$3,290.00</span>
+                      <span class="small d-block text-muted">Pending Referral Bonus</span>
+                      <span class="fs-5 fw-bold text-dark">$<?= number_format($pending_referral_bonus,2) ?></span>
+                      <div><small>when referral made transaction you get 10% bonus automatically in your wallet</small></div>
                     </div>
                   </div>
                 </div>
