@@ -170,7 +170,7 @@
   }
 </style>
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2"></script>
-<script src="/main/script.js"></script>
+<script src="/member/script.js"></script>
 <script>
 
 // Helper function to handle password visibility toggling
@@ -278,7 +278,7 @@ if (!country || country === "Select Country") {
 
     try {
 
-        const response = await fetch("<?= $company_info['server'] ?>", {
+        const response = await fetch("<?= $company_info['main-server'] ?>", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

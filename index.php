@@ -1,5 +1,9 @@
 <?php
-include __DIR__."/member/country.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+include __DIR__."/memberz/country.php";
+include __DIR__."/server/conn.php";
 $dataUrl=parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $company_info=[
     "name" => "brightpath",
@@ -25,7 +29,7 @@ switch ($dataUrl) {
         break;
     
     case '/faq':
-              include __DIR__."/main/faq.php";
+            include __DIR__."/main/faq.php";
         break;
 
     case '/contact-us':
@@ -33,7 +37,32 @@ switch ($dataUrl) {
         break;
 
     case '/login':
-              include __DIR__."/member/login.php";
+              include __DIR__."/memberz/login.php";
+        break;
+        
+    case '/register':
+        include __DIR__."/memberz/register.php";
+        break;
+
+    case '/dashboard':
+    case '/member':
+            include __DIR__."/memberz/member.php";
+        break;
+
+    case '/kyc':
+            include __DIR__."/memberz/kyc.php";
+        break;
+
+    case '/make-deposit':
+                include __DIR__."/memberz/deposit.php";
+        break;
+
+    case '/deposit-payment':
+                include __DIR__."/memberz/deposit-payment.php";
+        break;
+        
+    case '/investment-plans':
+        include __DIR__."/memberz/investment-plan.php";
         break;
     
     default:
