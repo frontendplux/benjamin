@@ -213,16 +213,9 @@ body.dark-mode a{
       <button class="btn btn-link d-lg-none text-white p-0 border-0 fs-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#androidDashboardSidebar" aria-controls="androidDashboardSidebar">
         <i class="bi bi-list"></i>
       </button>
-
-      <!-- Brand Logo Indicator -->
-      <div class="bg-success rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
-        <i class="bi bi-graph-up-arrow fs-5"></i>
-      </div> 
-
       <!-- Brand Title & Account Metadata Layout -->
       <div class="d-flex flex-column lh-1 d-none d-md-block">
-        <span class="fs-5 fw-bold text-white">Bright Path</span><br>
-        <span class="text-success small fw-medium mt-1" style="font-size: 11px;">Account Portfolio</span>
+        <img src="<?= $company_info['logo2'] ?>" style="width:70px" alt="<?= htmlspecialchars($company_info['keywords']) ?>" class="">
       </div>
     </div>
 
@@ -298,3 +291,4 @@ body.dark-mode a{
     </div>
 </div>
 <div id="google_translate_element" style="display:none;"></div>
+<script src="/memberz/script.js"></script>

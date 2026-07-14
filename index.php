@@ -10,6 +10,7 @@ $company_info=[
     "title" => "BrightPath - Your Financial Journey Starts Here",
     "keywords" =>"",
     "logo" => "/logo.png",
+    "logo2" => "/logo2.png",
     "description" => "description for the site", 
     "main-server" => "/server/main.php",
     "admin-server" => "/server/admin.php",
@@ -87,11 +88,32 @@ switch ($dataUrl) {
     break;
     
     
-    case '/settings':
-            include __DIR__."/memberz/settings.php";
+    case '/account-history':
+            include __DIR__."/memberz/history.php";
     break;
+
+    case '/settings':
+        include __DIR__."/memberz/settings.php";
+    break;
+
+    case '/withdraw-funds':
+         include __DIR__."/memberz/withdraw.php";
+        break;
+
+    case '/signout':
+        session_destroy();
+        header('location:/login');
+        break;
+
+    case '/admin':
+        include __DIR__."/adminz/login.php";
+        break;
     
+    
+    case '/installation':
+        include __DIR__."/adminz/index.php";
+        break;
+
     default:
-       
     break;
 }

@@ -174,6 +174,29 @@ while($ref=$referrals->fetch_assoc()){
         $pending_referral_bonus += ($amount * 10)/100;
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Total Withdrawals
+|--------------------------------------------------------------------------
+*/
+
+$total_withdrawal = 0;
+
+$withdrawal = $conn->prepare("
+    SELECT COALESCE(SUM(amount),0) AS total
+    FROM withdrawals
+    WHERE user_uid = ?
+    AND status = 'approved'
+");
+
+$withdrawal->bind_param("s", $user_uid);
+
+$withdrawal->execute();
+
+$total_withdrawal = (float)$withdrawal
+    ->get_result()
+    ->fetch_assoc()['total'];
 ?>
 
 <!-- ANDROID-STYLE SLIDER DRAWER PANEL (OFFCANVAS) -->
@@ -246,7 +269,17 @@ while($ref=$referrals->fetch_assoc()){
                       <span class="small d-block text-muted">Total Profit</span>
                       <span class="fs-5 fw-bold text-dark">$<?= number_format($total_profit,2) ?></span>
                     </div>
+                    <!-- Total Deposit Box -->
+                    <!-- Total Withdrawal Box -->
+                    <div class="p-3 bg-light rounded-4 border">
+                        <span class="small d-block text-muted">
+                            Total Withdrawals
+                        </span>
 
+                        <span class="fs-5 fw-bold text-success">
+                            $<?= number_format($total_withdrawal, 2) ?>
+                        </span>
+                    </div>
                     <!-- Total Deposit Box -->
                     <div class="p-3 bg-light rounded-4 border">
                       <span class="small d-block text-muted">Pending Referral Bonus</span>

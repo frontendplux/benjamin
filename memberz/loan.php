@@ -8,8 +8,70 @@ if (!in_array($active_view, ['request', 'history'])) {
 }
 
 // Dummy/Placeholder logic mapping for the History array (Replace with your SQL fetch loop later)
-$user_id = $_SESSION['uid'] ?? 1;
+$user_uid = $_SESSION['user_id'] ?? null;
+
+if (!$user_uid) {
+    header("Location: /login");
+    exit;
+}
 $loans_count = 0; // Set up dynamically via query count if required
+
+$page=max(1,$_GET['page'] ?? 1);
+
+$limit=10;
+
+$offset=($page-1)*$limit;
+
+
+$count=$conn->prepare("
+SELECT COUNT(*) total
+FROM loans
+WHERE user_uid=?
+");
+
+
+$count->bind_param(
+"s",
+$user_uid
+);
+
+
+$count->execute();
+
+
+$totalLoans=
+$count->get_result()
+->fetch_assoc()['total'];
+
+
+$totalPages=ceil($totalLoans/$limit);
+
+
+
+$stmt=$conn->prepare("
+SELECT *
+FROM loans
+WHERE user_uid=?
+
+ORDER BY id DESC
+
+LIMIT ? OFFSET ?
+
+");
+
+
+$stmt->bind_param(
+"sii",
+$user_uid,
+$limit,
+$offset
+);
+
+
+$stmt->execute();
+
+
+$loans=$stmt->get_result();
 ?>
 
 <!-- SYSTEM CONTAINER FRAME -->
@@ -59,41 +121,85 @@ $loans_count = 0; // Set up dynamically via query count if required
               </div>
 
               <!-- Submission Form Pipeline -->
-              <form action="process_loan.php" method="POST">
+              <form id="loanForm">
                 <div class="row g-3">
                   
                   <!-- Input: Loan Purpose Selection -->
-                  <div class="col-md-6">
-                    <label class="small text-muted mb-1 font-monospace" style="font-size: 11px;">Primary Financing Vector</label>
-                    <select class="form-select bg-light border-light-subtle py-2.5 small font-monospace text-dark" name="loan_purpose" required>
-                      <option selected disabled value="">Choose purpose...</option>
-                      <option value="staking_leverage">Staking Capital Leverage</option>
-                      <option value="liquidity_buffer">Node Liquidity Buffer</option>
-                      <option value="corporate_expansion">Corporate Operations Expansion</option>
-                      <option value="equity_bridge">Asset Bridge Financing</option>
-                    </select>
-                  </div>
+            <div class="col-12">
 
-                  <!-- Input: Loan Term Duration -->
-                  <div class="col-md-6">
-                    <label class="small text-muted mb-1 font-monospace" style="font-size: 11px;">Maturity Term Duration</label>
-                    <select class="form-select bg-light border-light-subtle py-2.5 small font-monospace text-dark" name="loan_term" required>
-                      <option selected disabled value="">Select runtime...</option>
-                      <option value="3_months">3 Months (Quarterly Node Renewal)</option>
-                      <option value="6_months">6 Months (Standard Yield Cycle)</option>
-                      <option value="12_months">12 Months (Extended Term Matrix)</option>
-                    </select>
-                  </div>
+<label class="small text-muted">
+Loan Amount (USD)
+</label>
 
-                  <!-- Input: Capital Principal Target -->
-                  <div class="col-12">
-                    <label class="small text-muted mb-1 font-monospace" style="font-size: 11px;">Requested Capital Principal (USD)</label>
-                    <div class="input-group">
-                      <span class="input-group-text bg-light border-light-subtle font-monospace text-muted">$</span>
-                      <input type="number" min="1000" max="25000" step="100" class="form-control bg-light border-light-subtle py-2.5 text-dark font-monospace" name="loan_amount" placeholder="Enter amount between 1,000 and 25,000" required>
-                    </div>
-                    <span class="text-muted d-block mt-1 font-monospace" style="font-size: 10px;">Your designated tier cap is dynamically locked at <strong class="text-success">$25,000.00</strong></span>
-                  </div>
+
+<input 
+type="number"
+name="amount"
+class="form-control"
+placeholder="Enter amount"
+required>
+
+</div>
+
+
+
+<div class="col-12">
+
+<label class="small text-muted">
+Loan Duration
+</label>
+
+
+<select 
+name="duration"
+class="form-select"
+required>
+
+<option value="">
+Select duration
+</option>
+
+<option value="3 months">
+3 Months
+</option>
+
+
+<option value="6 months">
+6 Months
+</option>
+
+
+<option value="12 months">
+12 Months
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+<div class="col-12">
+
+
+<label class="small text-muted">
+Reason For Loan
+</label>
+
+
+<textarea
+name="reason"
+class="form-control"
+rows="4"
+placeholder="Explain why you need this loan"
+required></textarea>
+
+
+</div>
+
+                
 
                   <!-- Info Block: Transparent Legal Compliance Note -->
                   <div class="col-12 mt-4">
@@ -195,40 +301,109 @@ $loans_count = 0; // Set up dynamically via query count if required
               </thead>
               <tbody class="small">
                 <!-- Example Static Layout Entry: Pending Verification Case -->
-                <tr class="border-bottom border-light-subtle">
-                  <td class="ps-3 py-3">
-                    <span class="text-muted font-monospace d-block" style="font-size: 11px;">#LN-78322-A</span>
-                    <strong class="text-dark">Node Liquidity Buffer</strong>
-                  </td>
-                  <td class="py-3 fw-bold font-monospace text-dark">$5,000.00</td>
-                  <td class="py-3 font-monospace text-secondary">4.75% APR</td>
-                  <td class="py-3 text-secondary">6 Months</td>
-                  <td class="py-3">
-                    <span class="badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-20 rounded-pill px-2.5 py-1.5 font-monospace" style="font-size: 10px;">Awaiting Review</span>
-                  </td>
-                  <td class="pe-3 py-3 text-end">
-                    <button class="btn btn-light btn-sm text-muted rounded-2 border border-light-subtle py-1 px-2 font-monospace" style="font-size: 11px;" disabled>Awaiting Action</button>
-                  </td>
-                </tr>
+                 <?php while($loan=$loans->fetch_assoc()): ?>
 
-                <!-- Example Static Layout Entry: Active Running Approved Case -->
-                <tr class="border-bottom border-light-subtle">
-                  <td class="ps-3 py-3">
-                    <span class="text-muted font-monospace d-block" style="font-size: 11px;">#LN-61029-B</span>
-                    <strong class="text-dark">Staking Capital Leverage</strong>
-                  </td>
-                  <td class="py-3 fw-bold font-monospace text-dark">$12,500.00</td>
-                  <td class="py-3 font-monospace text-secondary">4.75% APR</td>
-                  <td class="py-3 text-secondary">12 Months</td>
-                  <td class="py-3">
-                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 rounded-pill px-2.5 py-1.5 font-monospace" style="font-size: 10px;">Active Allocation</span>
-                  </td>
-                  <td class="pe-3 py-3 text-end">
-                    <a href="/repay.php?id=LN-61029-B" class="btn btn-success btn-sm rounded-2 py-1 px-2.5 fw-medium" style="font-size: 12px;">Repay Loan</a>
-                  </td>
-                </tr>
+<tr>
+
+<td>
+
+<span class="text-muted small">
+<?=$loan['loan_uid']?>
+</span>
+
+<br>
+
+<strong>
+<?=htmlspecialchars($loan['reason'])?>
+</strong>
+
+</td>
+
+
+<td>
+$<?=number_format($loan['amount'],2)?>
+</td>
+
+
+<td>
+<?=$loan['duration']?>
+</td>
+
+
+<td>
+
+<?php
+
+$status=$loan['status'];
+
+
+$class=[
+'pending'=>'warning',
+'approved'=>'success',
+'rejected'=>'danger',
+'cancelled'=>'secondary'
+
+][$status];
+
+
+?>
+
+
+<span class="badge bg-<?=$class?>">
+
+<?=ucfirst($status)?>
+
+</span>
+
+
+</td>
+
+
+<td class="text-end">
+
+<?=date(
+"d M Y",
+strtotime($loan['created_at'])
+)?>
+
+</td>
+
+
+</tr>
+
+
+<?php endwhile;?>
               </tbody>
             </table>
+          <nav>
+
+<ul class="pagination">
+
+
+<?php for($i=1;$i<=$totalPages;$i++): ?>
+
+
+<li class="page-item 
+<?=$page==$i?'active':''?>">
+
+
+<a class="page-link"
+href="?view=history&page=<?=$i?>">
+
+<?=$i?>
+
+</a>
+
+
+</li>
+
+
+<?php endfor;?>
+
+
+</ul>
+
+</nav>
           </div>
 
         </div>
@@ -238,3 +413,87 @@ $loans_count = 0; // Set up dynamically via query count if required
     </div>
   </div>
 </div>
+
+
+<script>
+
+document
+.getElementById("loanForm")
+.addEventListener("submit",function(e){
+
+e.preventDefault();
+
+
+let formData=new FormData(this);
+
+
+fetch(
+"<?= $company_info['main-server'] ?>",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+
+body:JSON.stringify({
+
+action:"/member/create-loan",
+amount:formData.get("amount"),
+
+duration:formData.get("duration"),
+
+reason:formData.get("reason")
+})
+
+})
+.then(res=>res.json())
+
+.then(data=>{
+
+
+if(data.success){
+
+
+Swal.fire({
+
+icon:"success",
+
+title:"Loan Submitted",
+
+text:data.message
+
+})
+.then(()=>{
+
+location.href="?view=history";
+
+});
+
+
+}else{
+
+
+Swal.fire({
+
+icon:"error",
+
+title:"Failed",
+
+text:data.message
+
+});
+
+
+}
+
+
+});
+
+
+});
+
+
+</script>

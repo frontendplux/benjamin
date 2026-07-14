@@ -436,7 +436,7 @@ document.getElementById("update_payment").addEventListener("submit", async funct
             title:"Payment Submitted",
             text:"Your deposit is now under review"
         }).then(()=>{
-            location.href="/dashboard";
+            location.href="/investment-plans";
         });
     }catch(error){
         button.disabled=false;

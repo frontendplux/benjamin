@@ -258,8 +258,67 @@ CREATE TABLE if not EXISTS login_history(
     ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS transactions (
 
-/* CREATE TABLE IF NOT EXISTS loan_applications (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    transaction_uid VARCHAR(100) NOT NULL UNIQUE,
+
+    user_uid VARCHAR(100) NOT NULL,
+
+    type ENUM(
+        'deposit',
+        'withdrawal',
+        'investment',
+        'roi',
+        'referral_bonus',
+        'loan'
+    ) NOT NULL,
+
+    reference_id VARCHAR(100) DEFAULT NULL,
+
+    asset VARCHAR(100) DEFAULT 'USD',
+
+    amount DECIMAL(18,2) NOT NULL,
+
+    direction ENUM(
+        'credit',
+        'debit'
+    ) NOT NULL DEFAULT 'credit',
+
+    status ENUM(
+        'pending',
+        'processing',
+        'success',
+        'failed',
+        'cancelled'
+    ) DEFAULT 'pending',
+
+    description TEXT DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+
+    INDEX idx_user_uid(user_uid),
+    INDEX idx_type(type),
+    INDEX idx_status(status),
+
+
+    CONSTRAINT fk_transaction_user
+        FOREIGN KEY(user_uid)
+        REFERENCES users(uid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_user_created
+ON transactions(user_uid, created_at);
+
+
+CREATE TABLE IF NOT EXISTS loans (
+
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
     loan_uid VARCHAR(100) NOT NULL UNIQUE,
@@ -268,41 +327,18 @@ CREATE TABLE if not EXISTS login_history(
 
     amount DECIMAL(18,2) NOT NULL,
 
-    duration_value INT UNSIGNED NOT NULL,
-    duration_unit ENUM('days','weeks','months','years') NOT NULL,
-
-    monthly_income DECIMAL(18,2) DEFAULT NULL,
-
-    employment_status ENUM(
-        'employed',
-        'self_employed',
-        'business_owner',
-        'student',
-        'unemployed',
-        'retired'
-    ) NOT NULL,
-
     reason TEXT NOT NULL,
 
-    collateral VARCHAR(255) DEFAULT NULL,
+    duration VARCHAR(50) DEFAULT NULL,
 
     status ENUM(
         'pending',
-        'reviewing',
         'approved',
         'rejected',
-        'cancelled',
-        'disbursed',
-        'completed'
-    ) NOT NULL DEFAULT 'pending',
+        'cancelled'
+    ) DEFAULT 'pending',
 
-    approved_amount DECIMAL(18,2) DEFAULT NULL,
-
-    interest_rate DECIMAL(5,2) DEFAULT NULL COMMENT 'Percentage',
-
-    admin_remark TEXT DEFAULT NULL,
-
-    approved_by VARCHAR(100) DEFAULT NULL,
+    admin_note TEXT DEFAULT NULL,
 
     approved_at TIMESTAMP NULL DEFAULT NULL,
 
@@ -311,13 +347,87 @@ CREATE TABLE if not EXISTS login_history(
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
 
-    INDEX idx_user_uid (user_uid),
-    INDEX idx_status (status),
-    INDEX idx_created_at (created_at),
+
+    INDEX idx_user(user_uid),
+    INDEX idx_status(status),
+
 
     CONSTRAINT fk_loan_user
-        FOREIGN KEY (user_uid)
+
+    FOREIGN KEY(user_uid)
+
+    REFERENCES users(uid)
+
+    ON DELETE CASCADE
+
+    ON UPDATE CASCADE
+
+);
+
+CREATE TABLE IF NOT EXISTS withdrawals (
+
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    withdrawal_uid VARCHAR(100) NOT NULL UNIQUE,
+
+    user_uid VARCHAR(100) NOT NULL,
+
+    amount DECIMAL(18,2) NOT NULL,
+
+    wallet_address VARCHAR(255) NOT NULL,
+
+    network VARCHAR(100) NOT NULL,
+
+    status ENUM(
+        'pending',
+        'processing',
+        'approved',
+        'rejected',
+        'cancelled'
+    ) NOT NULL DEFAULT 'pending',
+
+    transaction_hash VARCHAR(255) DEFAULT NULL,
+
+    admin_note TEXT DEFAULT NULL,
+
+    approved_at TIMESTAMP NULL DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_user(user_uid),
+    INDEX idx_status(status),
+
+    CONSTRAINT fk_withdraw_user
+        FOREIGN KEY(user_uid)
         REFERENCES users(uid)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-); */
+
+);
+
+
+CREATE TABLE IF NOT EXISTS admin (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    uid VARCHAR(100) NOT NULL UNIQUE,
+
+    token VARCHAR(255) DEFAULT NULL,
+
+    email VARCHAR(255) NOT NULL UNIQUE,
+
+    password VARCHAR(255) NOT NULL,
+
+    app_password VARCHAR(255) DEFAULT NULL,
+
+    is_active BOOLEAN NOT NULL DEFAULT FALSE,
+
+    is_main_admin BOOLEAN NOT NULL DEFAULT FALSE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP
+);

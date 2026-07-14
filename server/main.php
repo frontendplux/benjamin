@@ -1460,6 +1460,270 @@ echo json_encode([
 
 break;
 
+case "/member/create-loan":
+
+$user_uid=$_SESSION['user_id'] ?? null;
+
+
+if(!$user_uid){
+
+echo json_encode([
+"success"=>false,
+"message"=>"Unauthorized"
+]);
+
+break;
+
+}
+
+
+$amount=floatval($data['amount'] ?? 0);
+
+$reason=trim($data['reason'] ?? '');
+
+$duration=trim($data['duration'] ?? '');
+
+
+
+if($amount<=0 || empty($reason)){
+
+
+echo json_encode([
+
+"success"=>false,
+
+"message"=>"Invalid loan information"
+
+]);
+
+
+break;
+
+}
+
+
+
+$loan_uid="LN-".strtoupper(bin2hex(random_bytes(5)));
+
+
+
+$stmt=$conn->prepare("
+INSERT INTO loans
+(
+loan_uid,
+user_uid,
+amount,
+reason,
+duration
+)
+
+VALUES(?,?,?,?,?)
+");
+
+
+
+$stmt->bind_param(
+"ssdss",
+$loan_uid,
+$user_uid,
+$amount,
+$reason,
+$duration
+);
+
+
+
+if($stmt->execute()){
+
+
+echo json_encode([
+
+"success"=>true,
+
+"message"=>"Loan application submitted successfully"
+
+]);
+
+
+}else{
+
+
+echo json_encode([
+
+"success"=>false,
+
+"message"=>"Unable to submit loan"
+
+]);
+
+
+}
+
+
+break;
+
+case "/member/create-withdrawal":
+
+    if(empty($_SESSION['user_id'])){
+
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Login required"
+        ]);
+        break;
+    }
+
+    $user_uid = $_SESSION['user_id'];
+
+    $amount = (float)($data['amount'] ?? 0);
+
+    if($amount <= 0){
+
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Invalid amount"
+        ]);
+        break;
+    }
+
+    $wallet = $conn->prepare("
+        SELECT wallet_balance
+        FROM user_wallet
+        WHERE user_uid=?
+        LIMIT 1
+    ");
+
+    $wallet->bind_param("s",$user_uid);
+
+    $wallet->execute();
+
+    $walletData =
+    $wallet->get_result()
+    ->fetch_assoc();
+
+    if(!$walletData){
+
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Wallet not found"
+        ]);
+        break;
+    }
+
+    $balance = (float)$walletData['wallet_balance'];
+
+    if($amount > $balance){
+
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Insufficient balance"
+        ]);
+        break;
+    }
+
+    $withdrawal_uid =
+    "WD".time().rand(1000,9999);
+
+    $conn->begin_transaction();
+
+    try{
+
+        $newBalance =
+        $balance - $amount;
+
+        $update = $conn->prepare("
+            UPDATE user_wallet
+            SET wallet_balance=?
+            WHERE user_uid=?
+        ");
+
+        $update->bind_param(
+            "ds",
+            $newBalance,
+            $user_uid
+        );
+
+        $update->execute();
+
+        $insert = $conn->prepare("
+            INSERT INTO withdrawals(
+                withdrawal_uid,
+                user_uid,
+                amount,
+                status
+            )
+            VALUES(
+                ?,
+                ?,
+                ?,
+                'pending'
+            )
+        ");
+
+        $insert->bind_param(
+            "ssd",
+            $withdrawal_uid,
+            $user_uid,
+            $amount
+        );
+
+        $insert->execute();
+
+        $trx_uid =
+        "TRX".time().rand(1000,9999);
+
+        $trx = $conn->prepare("
+            INSERT INTO transactions(
+                transaction_uid,
+                user_uid,
+                type,
+                asset,
+                amount,
+                direction,
+                status,
+                description
+            )
+            VALUES(
+                ?,
+                ?,
+                'withdrawal',
+                'Wallet Balance',
+                ?,
+                'debit',
+                'pending',
+                'Withdrawal request submitted'
+            )
+        ");
+
+        $trx->bind_param(
+            "ssd",
+            $trx_uid,
+            $user_uid,
+            $amount
+        );
+
+        $trx->execute();
+
+        $conn->commit();
+
+        echo json_encode([
+            "success"=>true,
+            "message"=>"Withdrawal request submitted successfully."
+        ]);
+
+    }catch(Exception $e){
+
+        $conn->rollback();
+
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Withdrawal failed"
+        ]);
+    }
+
+break;
+
+
         echo json_encode([
             "success" => false,
             "message" => "Invalid request."

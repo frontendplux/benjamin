@@ -10,7 +10,11 @@ $user_uid = $_SESSION['user_id'];
 
 $referral_code = $user_uid;
 
-$referral_link = "https://yourdomain.com/register?ref=".$referral_code;
+$referral_link =
+(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://')
+. $_SERVER['HTTP_HOST']
+. "/register?ref="
+. urlencode($referral_code);
 
 /*
 |--------------------------------------------------------------------------
