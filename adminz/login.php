@@ -38,10 +38,22 @@
                 <form id="loginForm" onsubmit="handleAdminLogin(event)">
                     <!-- Input Layer: Identifier -->
                     <div class="mb-3">
-                        <label class="small text-dark fw-medium mb-1" for="adminUser">Administrator Username</label>
+                        <label class="small text-dark fw-medium mb-1" for="adminEmail">
+                            Administrator Email
+                        </label>
+
                         <div class="input-group">
-                            <span class="input-group-text bg-light border-light-subtle text-secondary"><i class="bi bi-person-fill"></i></span>
-                            <input type="text" id="adminUser" class="form-control border-light-subtle py-2 text-dark font-monospace" placeholder="e.g. MasterNode_Admin" required>
+                            <span class="input-group-text bg-light border-light-subtle text-secondary">
+                                <i class="bi bi-envelope-fill"></i>
+                            </span>
+
+                            <input
+                                type="email"
+                                id="adminEmail"
+                                class="form-control border-light-subtle py-2 text-dark font-monospace"
+                                placeholder="admin@example.com"
+                                required
+                            >
                         </div>
                     </div>
 
@@ -110,6 +122,34 @@
                         </div>
                     </div>
 
+                    <div class="mb-3">
+    <label class="small text-dark fw-medium mb-1">
+        New Password
+    </label>
+
+    <input
+        type="password"
+        id="newPassword"
+        class="form-control"
+        minlength="8"
+        required
+    >
+</div>
+
+<div class="mb-4">
+    <label class="small text-dark fw-medium mb-1">
+        Confirm Password
+    </label>
+
+    <input
+        type="password"
+        id="confirmPassword"
+        class="form-control"
+        minlength="8"
+        required
+    >
+</div>
+
                     <!-- Actions Stack Matrix -->
                     <div class="d-flex flex-column gap-2">
                         <button type="submit" class="btn btn-warning text-dark w-100 py-2.5 rounded-3 fw-medium shadow-sm">
@@ -147,10 +187,10 @@ async function handleAdminLogin(event) {
 
     event.preventDefault();
 
-    const usernameInput = document.getElementById("adminUser");
+   const emailInput = document.getElementById("adminEmail");
     const passwordInput = document.getElementById("adminPin");
 
-    if (!usernameInput || !passwordInput) {
+    if (!emailInput || !passwordInput) {
         Swal.fire({
             icon: "error",
             title: "Error",
@@ -159,16 +199,16 @@ async function handleAdminLogin(event) {
         return;
     }
 
-    const username = usernameInput.value.trim();
+    const email = emailInput.value.trim().toLowerCase();
     const password = passwordInput.value;
 
-    if (username === "") {
+    if (email === "") {
         Swal.fire({
             icon: "warning",
             title: "Username Required",
             text: "Please enter your username."
         });
-        usernameInput.focus();
+        emailInput.focus();
         return;
     }
 
@@ -201,15 +241,15 @@ async function handleAdminLogin(event) {
 
     try {
         
-        const response = await fetch("<?= $company_info['server2'] ?>", {
+        const response = await fetch("<?= $company_info['admin-server'] ?>", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 action: "/admin/login",
-                user: username,
-                pass: password
+                email: email,
+                password: password
             })
         });
 
@@ -260,46 +300,126 @@ async function handleAdminLogin(event) {
 
 }
 
-
-async function handleParamRecovery(event) {
+async function handleParamRecovery(event){
 
     event.preventDefault();
 
     const appPassword = document.getElementById("appPassword").value.trim();
+    const newPassword = document.getElementById("newPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
 
-    if (appPassword === "") {
+    if(appPassword===""){
+        Swal.fire({
+            icon:"warning",
+            title:"Required",
+            text:"Enter your App Security Code."
+        });
+        return;
+    }
+
+    if(newPassword.length<8){
 
         Swal.fire({
-            icon: "warning",
-            title: "Password Required",
-            text: "Please enter the root application password."
+            icon:"warning",
+            title:"Weak Password",
+            text:"Password must contain at least 8 characters."
+        });
+
+        return;
+    }
+
+    if(newPassword!==confirmPassword){
+
+        Swal.fire({
+            icon:"error",
+            title:"Password Mismatch",
+            text:"The passwords do not match."
         });
 
         return;
     }
 
     Swal.fire({
-        title: "Checking Security Key...",
-        allowOutsideClick: false,
-        didOpen: () => {
+        title:"Resetting Password...",
+        allowOutsideClick:false,
+        didOpen:()=>{
             Swal.showLoading();
         }
     });
 
-    setTimeout(() => {
+    try{
+
+        const response = await fetch("<?= $company_info['admin-server'] ?>",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                action:"/admin/reset-password",
+
+                app_password:appPassword,
+
+                password:newPassword
+
+            })
+
+        });
+
+        const result = await response.json();
+
+        Swal.close();
+
+        if(result.success){
+
+            Swal.fire({
+
+                icon:"success",
+
+                title:"Password Updated",
+
+                text:result.message
+
+            }).then(()=>{
+
+                toggleAuthenticationState("login");
+
+            });
+
+        }else{
+
+            Swal.fire({
+
+                icon:"error",
+
+                title:"Reset Failed",
+
+                text:result.message
+
+            });
+
+        }
+
+    }catch(e){
 
         Swal.close();
 
         Swal.fire({
-            icon: "success",
-            title: "Verified",
-            text: "Security key accepted."
+
+            icon:"error",
+
+            title:"Connection Error",
+
+            text:"Unable to connect to the server."
+
         });
 
-    }, 1500);
+    }
 
 }
-
 
 function toggleAuthenticationState(state) {
 

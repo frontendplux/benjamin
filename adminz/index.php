@@ -15,7 +15,6 @@
   </style>
 </head>
 <body>
-x`
 <header class="navbar navbar-expand-lg navbar-dark bg-success border-bottom border-secondary border-opacity-25 py-3 px-4 shadow-sm">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-success" href="/">
@@ -127,5 +126,91 @@ x`
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+const form = document.getElementById("installationForm");
+const btn = document.getElementById("installBtn");
+
+form.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    const password = form.admin_password.value.trim();
+    const confirmPassword = form.admin_password_confirm.value.trim();
+
+    if(password !== confirmPassword){
+
+        Swal.fire({
+            icon:"error",
+            title:"Password Mismatch",
+            text:"The passwords you entered do not match."
+        });
+
+        return;
+    }
+
+    const formData = new FormData(form);
+formData.append("action", "/admin/installation");
+
+    btn.disabled = true;
+    btn.innerHTML = `
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Initializing System...
+    `;
+
+    try{
+
+        const response = await fetch("<?= $company_info['admin-server'] ?>",{
+            method:"POST",
+            body:formData
+        });
+
+        const result = await response.json();
+
+        if(result.success){
+
+            await Swal.fire({
+                icon:"success",
+                title:"Installation Complete",
+                text:result.message,
+                confirmButtonColor:"#198754"
+            });
+
+            if(result.redirect){
+                window.location.href = result.redirect;
+            }
+
+        }else{
+
+            Swal.fire({
+                icon:"error",
+                title:"Installation Failed",
+                text:result.message
+            });
+
+        }
+
+    }catch(error){
+
+        Swal.fire({
+            icon:"error",
+            title:"Server Error",
+            text:"Unable to connect to the installation server."
+        });
+
+    }finally{
+
+        btn.disabled = false;
+
+        btn.innerHTML = `
+            <span class="btn-text">
+                Complete Installation & Initialize
+                <i class="bi bi-cpu-fill ms-1"></i>
+            </span>
+        `;
+
+    }
+
+});
+</script>
 </body>
 </html>

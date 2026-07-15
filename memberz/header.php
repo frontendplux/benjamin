@@ -77,7 +77,7 @@ $user = $response['data'];
 <link rel="icon" href="<?= $company_info['logo'] ?>" type="image/x-icon">
 <title><?= $company_info['title'] ?></title>
 <meta name="theme-color" content="#198754">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="<?= $company_info['logo'] ?>">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -200,6 +200,7 @@ body.dark-mode a{
     color:#8ec5ff;
 }
 </style>
+<script src="/memberz/script.js"></script>
     <title>Document</title>
 </head>
 <body class="<?= $theme === 'dark' ? 'dark-mode' : 'light-mode' ?>">
@@ -291,4 +292,3 @@ body.dark-mode a{
     </div>
 </div>
 <div id="google_translate_element" style="display:none;"></div>
-<script src="/memberz/script.js"></script>

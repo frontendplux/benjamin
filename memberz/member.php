@@ -288,7 +288,6 @@ $total_withdrawal = (float)$withdrawal
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
 

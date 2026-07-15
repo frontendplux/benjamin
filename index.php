@@ -113,6 +113,10 @@ switch ($dataUrl) {
     case '/installation':
         include __DIR__."/adminz/index.php";
         break;
+    
+    case '/admin-dashboard':
+        include __DIR__."/adminz/dashbord.php";
+        break;
 
     default:
     break;

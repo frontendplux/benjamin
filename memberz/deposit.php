@@ -1,7 +1,7 @@
 <?php 
 include __DIR__."/header.php"; 
 $page = max(1, (int)($_GET['page'] ?? 1));
-$limit = 6;
+$limit = 600;
 $offset = ($page - 1) * $limit;
 
 $count = $conn->query("

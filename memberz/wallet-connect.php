@@ -111,7 +111,7 @@ $wallet_network = $walletData['wallet_network'] ?? "";
 </div>
 
                 <button type="submit" class="btn btn-success w-100 py-2.5 rounded-3 fw-bold shadow-sm">
-                  <i class="bi bi-shield-plus me-2"></i> Save & Enable Auto-Deposits
+                  <i class="bi bi-shield-plus me-2"></i> Save & Enable Withdrawal
                 </button>
               </form>
             <?php else: ?>
