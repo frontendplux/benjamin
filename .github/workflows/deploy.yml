@@ -13,26 +13,35 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Deploy Files via FTP
+      - name: Deploy Files via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.HOSTNAME }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          protocol: ftp
-          port: 21
-          local-dir: ./
-          server-dir: /
 
-          # Keeps hosting files safe
+          # FTPS Settings
+          protocol: ftps
+          port: 21
+
+          # Files to upload
+          local-dir: ./
+
+          # Change this if your website is in another directory
+          server-dir: /public_html/
+
+          # Don't delete existing files
           dangerous-clean-slate: false
 
-          # Protect uploads and ignore unnecessary files
+          # Optional: Increase timeout for slow servers
+          timeout: 120000
+
+          # Exclude unnecessary files
           exclude: |
             **/.git*
             **/.git*/**
-            **/node_modules/**
             **/.github/**
+            **/node_modules/**
             **/.env
             **/README.md
             uploads/**
