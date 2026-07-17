@@ -17,6 +17,7 @@ $theme = $_SESSION['darkmode'] ?? 'light';
 $closeMenuMe = [
     ['Dashboard','/member','bi-grid-1x2-fill'],
     ['Make Deposit','/make-deposit','bi-wallet2'],
+    ['Reinvest','/reinvest','bi-piggy-bank'],
     ['Apply for Loan','/apply-for-loan','bi-bank'],
     ['My Plans','/investment-plans','bi-pie-chart'],
     // ['Promo Plans','/promo-plans','bi-gift'],

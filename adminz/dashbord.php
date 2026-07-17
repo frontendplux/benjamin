@@ -1,64 +1,20 @@
 <?php  include __DIR__."/header.php"; ?>
 <body class="bg-light" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
 
-    <!-- TOP GLOBAL STICKY HEADER BLOCK -->
-    <div class="bg-white sticky-top border-bottom border-light-subtle py-2">
-        <header class="container d-flex justify-content-between align-items-center">
-            
-            <!-- Left Element: Operational Exit Trigger -->
-            <div>
-                <a href="/admin" class="btn btn-light btn-sm text-dark border border-light-subtle rounded-3 d-inline-flex align-items-center gap-1.5 py-1.5 px-2.5">
-                    <i class="bi bi-arrow-left-short fs-5 lh-1"></i>
-                    <span class="small fw-medium"><?=  $auth['data']['username']; ?></span>
-                </a>
-            </div>
-            
-            <!-- Right Element: Multi-Segment Operational Notification & Identity Dropdown Area -->
-            <div class="d-flex align-items-center gap-2">
-                
-                <!-- Notification Element Anchor -->
-                <div class="dropdown">
-                    <button class="btn btn-light position-relative p-2 rounded-circle border-0 text-secondary" type="button" id="noticeBell" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-bell-fill fs-5"></i>
-                        <span class="position-absolute top-1 start-75 translate-middle badge rounded-circle bg-danger p-1" style="width: 8px; height: 8px;">
-                            <span class="visually-hidden">Unread Alert Logs</span>
-                        </span>
-                    </button>
-                    <!-- Notification Queue Matrix Dropdown -->
-                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 p-2 mt-2" aria-labelledby="noticeBell" style="width: 280px; font-size: 12px;">
-                        <li class="dropdown-header text-dark fw-bold border-bottom border-light-subtle pb-2 mb-1">Active Event Stream</li>
-                        <li><a class="dropdown-item rounded-2 py-2 text-wrap text-secondary" href="#"><span class="text-warning fw-bold">●</span> Node 04 requested outbound clearing clearance signature.</a></li>
-                        <li><a class="dropdown-item rounded-2 py-2 text-wrap text-secondary" href="#"><span class="text-success fw-bold">●</span> Security credential reset compiled safely.</a></li>
-                    </ul>
-                </div>
-
-                <!-- Primary Identity Account Dropdown Element Holder -->
-                <div class="dropdown">
-                    <button class="btn btn-light d-flex align-items-center gap-2 border border-light-subtle rounded-pill py-1 ps-1 pe-2.5" type="button" id="adminAccountProfile" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold font-monospace shadow-sm" style="width: 28px; height: 28px; font-size: 11px;">
-                            <?= strtoupper($auth['data']['firstname'][0] . $auth['data']['lastname'][0]); ?>
-                        </div>
-                        <i class="bi bi-chevron-down text-secondary" style="font-size: 10px;"></i>
-                    </button>
-                    <!-- Action List -->
-                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 p-1.5 mt-2" aria-labelledby="adminAccountProfile" style="font-size: 13px;">
-                        <li><a class="dropdown-item rounded-2 py-2 text-secondary" href="#"><i class="bi bi-gear-fill me-2"></i>Crypto Node Setup</a></li>
-                        <li><a class="dropdown-item rounded-2 py-2 text-secondary" href="#"><i class="bi bi-shield-check me-2"></i>Security Matrices</a></li>
-                        <li><hr class="dropdown-divider my-1 border-light-subtle"></li>
-                        <li><a class="dropdown-item rounded-2 py-2 text-danger fw-medium" href="#" onclick="triggerLockdownSession()"><i class="bi bi-power me-2"></i>Terminate Token</a></li>
-                    </ul>
-                </div>
-
-            </div>
-        </header>
-    </div>
-
     <!-- MAIN GRID MENU LAYOUT -->
     <main class="container my-4">
         
         <!-- Welcome Hub Segment -->
-        <div class="mb-4">
-            <h5 class="fw-bold text-dark mb-1">Administrative Terminal Core</h5>
+        <div class="mb-4 d-flex justify-content-between">
+            <h5 class="fw-bold text-dark mb-1">Admin</h5>
+            <div>
+                <a href="/admin-logout" class="bi bi-power fs-3"></a>
+                <?php if($adminery['firstname'] != '' || $adminery['lastname'] != ''): ?>
+                <span class="btn btn-primary rounded-circle">
+                      <?= substr($adminery['firstname'], 0, 1) . substr($adminery['lastname'], 0, 1); ?>
+                </span>
+                <?php endif ?>
+            </div>
         </div>
 
         <!-- Matrix Operations Grid -->

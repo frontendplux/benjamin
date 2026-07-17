@@ -58,6 +58,11 @@ switch ($dataUrl) {
                 include __DIR__."/memberz/deposit.php";
         break;
 
+    case '/reinvest':
+                include __DIR__."/memberz/reinvest.php";
+        break;
+
+    
     case '/deposit-payment':
                 include __DIR__."/memberz/deposit-payment.php";
         break;
@@ -117,6 +122,16 @@ switch ($dataUrl) {
     case '/admin-dashboard':
         include __DIR__."/adminz/dashbord.php";
         break;
+    
+    case '/admin-deposit':
+         include __DIR__."/adminz/deposit.php";
+        break;
+
+    case '/admin-logout':
+        session_destroy();
+        header("location:/admin");
+        break;
+    
 
     default:
     break;
