@@ -62,6 +62,7 @@ switch ($dataUrl) {
                 include __DIR__."/memberz/reinvest.php";
         break;
 
+
     
     case '/deposit-payment':
                 include __DIR__."/memberz/deposit-payment.php";
@@ -125,6 +126,10 @@ switch ($dataUrl) {
     
     case '/admin-deposit':
          include __DIR__."/adminz/deposit.php";
+        break;
+
+    case '/admin-withdrawals':
+        include __DIR__."/adminz/withdrawal.php";
         break;
 
     case '/admin-logout':

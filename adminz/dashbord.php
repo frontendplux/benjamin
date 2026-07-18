@@ -33,7 +33,7 @@
                 </a>
             </div>
             <div class="col-6 col-md-4 col-xl-3">
-                <a href="/admin/withdrawals" class="card border-0 shadow-sm bg-white rounded-4 p-3.5 h-100 text-decoration-none transition-hover">
+                <a href="/admin-withdrawals" class="card border-0 shadow-sm bg-white rounded-4 p-3.5 h-100 text-decoration-none transition-hover">
                     <div class="text-success mb-3">
                         <div class="bg-success bg-opacity-10 rounded-3 d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                             <i class="bi bi-arrow-up-right-circle-fill fs-4"></i>

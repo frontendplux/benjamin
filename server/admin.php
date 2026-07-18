@@ -143,195 +143,324 @@ switch ($action) {
 
     case "/admin/login":
 
-    $email = strtolower(trim($data['email'] ?? ''));
-    $password = trim($data['password'] ?? '');
+        $email = strtolower(trim($data['email'] ?? ''));
+        $password = trim($data['password'] ?? '');
 
-    if (empty($email) || empty($password)) {
+        if (empty($email) || empty($password)) {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "Email and password are required."
+            ]);
+
+            exit;
+        }
+
+        $stmt = $conn->prepare("
+            SELECT
+                uid,
+                token,
+                email,
+                password,
+                is_active
+            FROM admin
+            WHERE email=?
+            LIMIT 1
+        ");
+
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 0) {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid login credentials."
+            ]);
+
+            exit;
+        }
+
+        $admin = $result->fetch_assoc();
+
+        if (!$admin['is_active']) {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "Administrator account is disabled."
+            ]);
+
+            exit;
+        }
+
+        if (!password_verify($password, $admin['password'])) {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid login credentials."
+            ]);
+
+            exit;
+        }
+
+        $newToken = bin2hex(random_bytes(32));
+
+        $update = $conn->prepare("
+            UPDATE admin
+            SET token=?
+            WHERE uid=?
+        ");
+
+        $update->bind_param(
+            "ss",
+            $newToken,
+            $admin['uid']
+        );
+
+        $update->execute();
+
+        $_SESSION['admin_uid'] = $admin['uid'];
+        $_SESSION['admin_token'] = $newToken;
+        $_SESSION['admin_email'] = $admin['email'];
 
         echo json_encode([
-            "success" => false,
-            "message" => "Email and password are required."
+            "success" => true,
+            "message" => "Login successful."
         ]);
 
         exit;
-    }
-
-    $stmt = $conn->prepare("
-        SELECT
-            uid,
-            token,
-            email,
-            password,
-            is_active
-        FROM admin
-        WHERE email=?
-        LIMIT 1
-    ");
-
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    if ($result->num_rows === 0) {
-
-        echo json_encode([
-            "success" => false,
-            "message" => "Invalid login credentials."
-        ]);
-
-        exit;
-    }
-
-    $admin = $result->fetch_assoc();
-
-    if (!$admin['is_active']) {
-
-        echo json_encode([
-            "success" => false,
-            "message" => "Administrator account is disabled."
-        ]);
-
-        exit;
-    }
-
-    if (!password_verify($password, $admin['password'])) {
-
-        echo json_encode([
-            "success" => false,
-            "message" => "Invalid login credentials."
-        ]);
-
-        exit;
-    }
-
-    $newToken = bin2hex(random_bytes(32));
-
-    $update = $conn->prepare("
-        UPDATE admin
-        SET token=?
-        WHERE uid=?
-    ");
-
-    $update->bind_param(
-        "ss",
-        $newToken,
-        $admin['uid']
-    );
-
-    $update->execute();
-
-    $_SESSION['admin_uid'] = $admin['uid'];
-    $_SESSION['admin_token'] = $newToken;
-    $_SESSION['admin_email'] = $admin['email'];
-
-    echo json_encode([
-        "success" => true,
-        "message" => "Login successful."
-    ]);
-
-    exit;
 
 
     case "/admin/reset-password":
 
-    $appPassword = trim($data['app_password'] ?? '');
-    $newPassword = trim($data['password'] ?? '');
+        $appPassword = trim($data['app_password'] ?? '');
+        $newPassword = trim($data['password'] ?? '');
 
-    if (empty($appPassword) || empty($newPassword)) {
+        if (empty($appPassword) || empty($newPassword)) {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "All fields are required."
+            ]);
+
+            exit;
+        }
+
+        if (strlen($newPassword) < 8) {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "Password must be at least 8 characters."
+            ]);
+
+            exit;
+        }
+
+        $stmt = $conn->prepare("
+            SELECT
+                uid,
+                app_password
+            FROM admin
+            WHERE is_main_admin=1
+            LIMIT 1
+        ");
+
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 0) {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "Administrator account not found."
+            ]);
+
+            exit;
+        }
+
+        $admin = $result->fetch_assoc();
+
+        if (!password_verify($appPassword, $admin['app_password'])) {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid App Security Code."
+            ]);
+
+            exit;
+        }
+
+        $passwordHash = password_hash(
+            $newPassword,
+            PASSWORD_DEFAULT
+        );
+
+        $token = bin2hex(random_bytes(32));
+
+        $update = $conn->prepare("
+            UPDATE admin
+            SET
+                password=?,
+                token=?
+            WHERE uid=?
+        ");
+
+        $update->bind_param(
+            "sss",
+            $passwordHash,
+            $token,
+            $admin['uid']
+        );
+
+        if (!$update->execute()) {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "Unable to reset password."
+            ]);
+
+            exit;
+        }
 
         echo json_encode([
-            "success" => false,
-            "message" => "All fields are required."
+            "success" => true,
+            "message" => "Password has been updated successfully."
         ]);
 
         exit;
-    }
 
-    if (strlen($newPassword) < 8) {
+case "/admin/process-withdrawal":
 
-        echo json_encode([
-            "success" => false,
-            "message" => "Password must be at least 8 characters."
-        ]);
+        // 1. Session Auth Protection Check
+        $session_uid   = $_SESSION['admin_uid'] ?? '';
+        $session_token = $_SESSION['admin_token'] ?? '';
 
-        exit;
-    }
+        if (empty($session_uid) || empty($session_token)) {
+            echo json_encode(["success" => false, "message" => "Unauthorized access encounter."]);
+            exit;
+        }
 
-    $stmt = $conn->prepare("
-        SELECT
-            uid,
-            app_password
-        FROM admin
-        WHERE is_main_admin=1
-        LIMIT 1
-    ");
+        $auth_check = $conn->prepare("SELECT id FROM admin WHERE uid = ? AND token = ? AND is_active = 1 LIMIT 1");
+        $auth_check->bind_param("ss", $session_uid, $session_token);
+        $auth_check->execute();
+        if ($auth_check->get_result()->num_rows === 0) {
+            echo json_encode(["success" => false, "message" => "Session invalid or expired."]);
+            exit;
+        }
 
-    $stmt->execute();
+        // 2. Extract Processing Payload Parameters
+        $withdrawal_uid = trim($data['withdrawal_uid'] ?? '');
+        $decision       = trim($data['decision'] ?? ''); // 'approve' or 'reject'
+        $note           = trim($data['note'] ?? '');
 
-    $result = $stmt->get_result();
+        if (empty($withdrawal_uid) || !in_array($decision, ['approve', 'reject'])) {
+            echo json_encode(["success" => false, "message" => "Required context variables missing."]);
+            exit;
+        }
 
-    if ($result->num_rows === 0) {
+        // 3. Begin Atomic Transaction Thread
+        $conn->begin_transaction();
 
-        echo json_encode([
-            "success" => false,
-            "message" => "Administrator account not found."
-        ]);
+        try {
+            // Fetch targets with complete structural row locks
+            $wd_stmt = $conn->prepare("SELECT * FROM withdrawals WHERE withdrawal_uid = ? FOR UPDATE");
+            $wd_stmt->bind_param("s", $withdrawal_uid);
+            $wd_stmt->execute();
+            $withdrawal = $wd_stmt->get_result()->fetch_assoc();
 
-        exit;
-    }
+            if (!$withdrawal) {
+                throw new Exception("Withdrawal document record not identified.");
+            }
 
-    $admin = $result->fetch_assoc();
+            if (!in_array($withdrawal['status'], ['pending', 'processing'])) {
+                throw new Exception("This entry transaction pipeline is already finalized.");
+            }
 
-    if (!password_verify($appPassword, $admin['app_password'])) {
+            $user_uid = $withdrawal['user_uid'];
+            $amount   = (float)$withdrawal['amount'];
 
-        echo json_encode([
-            "success" => false,
-            "message" => "Invalid App Security Code."
-        ]);
+            if ($decision === 'approve') {
+                // Generate ledger transaction entry confirming release
+                $tx_uid       = "TXW" . strtoupper(bin2hex(random_bytes(8)));
+                $tx_type      = 'withdrawal';
+                $tx_direction = 'debit';
+                $tx_status    = 'success';
+                $tx_desc      = "Withdrawal approved & sent. Target Destination: " . $withdrawal['wallet_address'];
 
-        exit;
-    }
+                $tx_stmt = $conn->prepare("
+                    INSERT INTO transactions 
+                    (transaction_uid, user_uid, type, reference_id, amount, direction, status, description) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $tx_stmt->bind_param("ssssdsss", $tx_uid, $user_uid, $tx_type, $withdrawal_uid, $amount, $tx_direction, $tx_status, $tx_desc);
+                $tx_stmt->execute();
 
-    $passwordHash = password_hash(
-        $newPassword,
-        PASSWORD_DEFAULT
-    );
+                // Update withdrawal status to 'approved'
+                $final_stmt = $conn->prepare("UPDATE withdrawals SET status = 'approved', transaction_hash = ?, approved_at = NOW() WHERE withdrawal_uid = ?");
+                $final_stmt->bind_param("ss", $note, $withdrawal_uid);
+                $final_stmt->execute();
 
-    $token = bin2hex(random_bytes(32));
+                // Generate User Notification entry
+                $notif_title = "Withdrawal Successful";
+                $notif_msg   = "Your withdrawal request for $" . number_format($amount, 2) . " has been approved. Reference Hash: " . $note;
+                $notif_stmt  = $conn->prepare("INSERT INTO notifications (user_uid, title, message, created_at) VALUES (?, ?, ?, NOW())");
+                $notif_stmt->bind_param("sss", $user_uid, $notif_title, $notif_msg);
+                $notif_stmt->execute();
 
-    $update = $conn->prepare("
-        UPDATE admin
-        SET
-            password=?,
-            token=?
-        WHERE uid=?
-    ");
+                $response_msg = "Withdrawal request has been verified and processed.";
+            } else {
+                // Handle Rejection scenario (Requires a refund since funds were debited upfront)
+                if (empty($note)) {
+                    throw new Exception("Rejection operations require an administrative note explanation.");
+                }
 
-    $update->bind_param(
-        "sss",
-        $passwordHash,
-        $token,
-        $admin['uid']
-    );
+                // Refund the capital allocation back to the user's wallet
+                $refund_stmt = $conn->prepare("UPDATE user_wallet SET wallet_balance = wallet_balance + ? WHERE user_uid = ?");
+                $refund_stmt->bind_param("ds", $amount, $user_uid);
+                $refund_stmt->execute();
 
-    if (!$update->execute()) {
+                // Generate ledger transaction entry tracking the refund credit
+                $tx_uid       = "TXR" . strtoupper(bin2hex(random_bytes(8)));
+                $tx_type      = 'withdrawal'; 
+                $tx_direction = 'credit';
+                $tx_status    = 'failed'; 
+                $tx_desc      = "Withdrawal rejected - Funds Refunded. Reason: " . $note;
 
-        echo json_encode([
-            "success" => false,
-            "message" => "Unable to reset password."
-        ]);
+                $tx_stmt = $conn->prepare("
+                    INSERT INTO transactions 
+                    (transaction_uid, user_uid, type, reference_id, amount, direction, status, description) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $tx_stmt->bind_param("ssssdsss", $tx_uid, $user_uid, $tx_type, $withdrawal_uid, $amount, $tx_direction, $tx_status, $tx_desc);
+                $tx_stmt->execute();
 
-        exit;
-    }
+                // Mark withdrawal row status as 'rejected'
+                $final_stmt = $conn->prepare("UPDATE withdrawals SET status = 'rejected', admin_note = ? WHERE withdrawal_uid = ?");
+                $final_stmt->bind_param("ss", $note, $withdrawal_uid);
+                $final_stmt->execute();
 
-    echo json_encode([
-        "success" => true,
-        "message" => "Password has been updated successfully."
-    ]);
+                // Generate User Notification entry for Rejection
+                $notif_title = "Withdrawal Rejected";
+                $notif_msg   = "Your withdrawal request for $" . number_format($amount, 2) . " was rejected. Reason: " . $note . ". Funds have been returned to your wallet.";
+                $notif_stmt  = $conn->prepare("INSERT INTO notifications (user_uid, title, message, created_at) VALUES (?, ?, ?, NOW())");
+                $notif_stmt->bind_param("sss", $user_uid, $notif_title, $notif_msg);
+                $notif_stmt->execute();
 
-    exit;
+                $response_msg = "Withdrawal request rejected and funds successfully refunded.";
+            }
 
+            $conn->commit();
+            echo json_encode(["success" => true, "message" => $response_msg]);
+            exit;
+
+        } catch (Exception $e) {
+            $conn->rollback();
+            echo json_encode(["success" => false, "message" => $e->getMessage()]);
+            exit;
+        }
 
     default:
 

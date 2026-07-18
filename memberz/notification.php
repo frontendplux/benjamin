@@ -3,7 +3,7 @@ include __DIR__."/header.php";
 $user_uid = $_SESSION['user_id'];
 
 $page = max(1, (int)($_GET['page'] ?? 1));
-$limit = 2;
+$limit = 6;
 $offset = ($page - 1) * $limit;
 
 /*
