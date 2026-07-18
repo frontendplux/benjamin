@@ -132,6 +132,20 @@ switch ($dataUrl) {
         include __DIR__."/adminz/withdrawal.php";
         break;
 
+    case '/admin-loans':
+        include __DIR__."/adminz/admin-loans.php";
+        break;
+    
+    case '/admin-investment-plan':
+       include __DIR__."/adminz/investment-and-wallet.php";
+        break;
+    
+    
+    case '/admin-users':
+       include __DIR__."/adminz/admin-users.php";
+        break;
+    
+
     case '/admin-logout':
         session_destroy();
         header("location:/admin");

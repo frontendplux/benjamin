@@ -16,62 +16,32 @@ if (!$user_uid) {
 }
 $loans_count = 0; // Set up dynamically via query count if required
 
-$page=max(1,$_GET['page'] ?? 1);
+$page = max(1, intval($_GET['page'] ?? 1));
+$limit = 10;
+$offset = ($page - 1) * $limit;
 
-$limit=10;
-
-$offset=($page-1)*$limit;
-
-
-$count=$conn->prepare("
-SELECT COUNT(*) total
-FROM loans
-WHERE user_uid=?
+$count = $conn->prepare("
+    SELECT COUNT(*) total
+    FROM loans
+    WHERE user_uid=?
 ");
 
-
-$count->bind_param(
-"s",
-$user_uid
-);
-
-
+$count->bind_param("s", $user_uid);
 $count->execute();
+$totalLoans = $count->get_result()->fetch_assoc()['total'];
+$totalPages = ceil($totalLoans / $limit);
 
-
-$totalLoans=
-$count->get_result()
-->fetch_assoc()['total'];
-
-
-$totalPages=ceil($totalLoans/$limit);
-
-
-
-$stmt=$conn->prepare("
-SELECT *
-FROM loans
-WHERE user_uid=?
-
-ORDER BY id DESC
-
-LIMIT ? OFFSET ?
-
+$stmt = $conn->prepare("
+    SELECT *
+    FROM loans
+    WHERE user_uid=?
+    ORDER BY id DESC
+    LIMIT ? OFFSET ?
 ");
 
-
-$stmt->bind_param(
-"sii",
-$user_uid,
-$limit,
-$offset
-);
-
-
+$stmt->bind_param("sii", $user_uid, $limit, $offset);
 $stmt->execute();
-
-
-$loans=$stmt->get_result();
+$loans = $stmt->get_result();
 ?>
 
 <!-- SYSTEM CONTAINER FRAME -->
@@ -84,7 +54,7 @@ $loans=$stmt->get_result();
     <div class="col-md-9 col-xl-10 p-3 p-md-4">
       
       <!-- Top Breadcrumb Section -->
-      <div class="d-flex align-items-center gap-2 small mb-4 <?= $theme === 'dark' ? 'text-light' : 'text-muted' ?>">
+      <div class="d-flex align-items-center gap-2 small mb-4 <?= (isset($theme) && $theme === 'dark') ? 'text-light' : 'text-muted' ?>">
         <i class="bi bi-house-door"></i> 
         <span>Dashboard</span> 
         <i class="bi bi-chevron-right" style="font-size: 10px;"></i> 
@@ -124,82 +94,25 @@ $loans=$stmt->get_result();
               <form id="loanForm">
                 <div class="row g-3">
                   
-                  <!-- Input: Loan Purpose Selection -->
-            <div class="col-12">
+                  <div class="col-12">
+                    <label class="small text-muted mb-1">Loan Amount (USD)</label>
+                    <input type="number" name="amount" class="form-control rounded-3" placeholder="Enter amount" required>
+                  </div>
 
-<label class="small text-muted">
-Loan Amount (USD)
-</label>
+                  <div class="col-12">
+                    <label class="small text-muted mb-1">Loan Duration</label>
+                    <select name="duration" class="form-select rounded-3" required>
+                      <option value="">Select duration</option>
+                      <option value="3 months">3 Months</option>
+                      <option value="6 months">6 Months</option>
+                      <option value="12 months">12 Months</option>
+                    </select>
+                  </div>
 
-
-<input 
-type="number"
-name="amount"
-class="form-control"
-placeholder="Enter amount"
-required>
-
-</div>
-
-
-
-<div class="col-12">
-
-<label class="small text-muted">
-Loan Duration
-</label>
-
-
-<select 
-name="duration"
-class="form-select"
-required>
-
-<option value="">
-Select duration
-</option>
-
-<option value="3 months">
-3 Months
-</option>
-
-
-<option value="6 months">
-6 Months
-</option>
-
-
-<option value="12 months">
-12 Months
-</option>
-
-
-</select>
-
-
-</div>
-
-
-
-<div class="col-12">
-
-
-<label class="small text-muted">
-Reason For Loan
-</label>
-
-
-<textarea
-name="reason"
-class="form-control"
-rows="4"
-placeholder="Explain why you need this loan"
-required></textarea>
-
-
-</div>
-
-                
+                  <div class="col-12">
+                    <label class="small text-muted mb-1">Reason For Loan</label>
+                    <textarea name="reason" class="form-control rounded-3" rows="4" placeholder="Explain why you need this loan" required></textarea>
+                  </div>
 
                   <!-- Info Block: Transparent Legal Compliance Note -->
                   <div class="col-12 mt-4">
@@ -293,207 +206,120 @@ required></textarea>
                 <tr class="bg-light rounded-3 font-monospace small text-secondary" style="font-size: 11px; border-bottom: 2px solid #f8f9fa;">
                   <th class="ps-3 py-3">LOAN ID / PURPOSE</th>
                   <th class="py-3">PRINCIPAL AMOUNT</th>
-                  <th class="py-3">INTEREST RATE</th>
                   <th class="py-3">TERM LIMIT</th>
                   <th class="py-3">STATUS</th>
-                  <th class="pe-3 py-3 text-end">MANAGEMENT</th>
+                  <th class="pe-3 py-3 text-end">DATE SUBMITTED</th>
                 </tr>
               </thead>
               <tbody class="small">
-                <!-- Example Static Layout Entry: Pending Verification Case -->
-                 <?php while($loan=$loans->fetch_assoc()): ?>
-
-<tr>
-
-<td>
-
-<span class="text-muted small">
-<?=$loan['loan_uid']?>
-</span>
-
-<br>
-
-<strong>
-<?=htmlspecialchars($loan['reason'])?>
-</strong>
-
-</td>
-
-
-<td>
-$<?=number_format($loan['amount'],2)?>
-</td>
-
-
-<td>
-<?=$loan['duration']?>
-</td>
-
-
-<td>
-
-<?php
-
-$status=$loan['status'];
-
-
-$class=[
-'pending'=>'warning',
-'approved'=>'success',
-'rejected'=>'danger',
-'cancelled'=>'secondary'
-
-][$status];
-
-
-?>
-
-
-<span class="badge bg-<?=$class?>">
-
-<?=ucfirst($status)?>
-
-</span>
-
-
-</td>
-
-
-<td class="text-end">
-
-<?=date(
-"d M Y",
-strtotime($loan['created_at'])
-)?>
-
-</td>
-
-
-</tr>
-
-
-<?php endwhile;?>
+                <?php if ($totalLoans === 0): ?>
+                  <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">No structural loan applications found.</td>
+                  </tr>
+                <?php else: ?>
+                  <?php while($loan = $loans->fetch_assoc()): ?>
+                    <tr class="border-bottom border-light-subtle">
+                      <td class="ps-3 py-3">
+                        <span class="text-muted font-monospace d-block" style="font-size: 11px;"><?= htmlspecialchars($loan['loan_uid'] ?? '') ?></span>
+                        <strong class="text-dark"><?= htmlspecialchars($loan['reason']) ?></strong>
+                      </td>
+                      <td class="py-3 fw-bold text-dark">$<?= number_format($loan['amount'], 2) ?></td>
+                      <td class="py-3 text-secondary"><?= htmlspecialchars($loan['duration']) ?></td>
+                      <td class="py-3">
+                        <?php
+                        $status = strtolower($loan['status']);
+                        $class = [
+                          'pending'   => 'warning text-warning-emphasis bg-warning-subtle',
+                          'approved'  => 'success text-success-emphasis bg-success-subtle',
+                          'rejected'  => 'danger text-danger-emphasis bg-danger-subtle',
+                          'cancelled' => 'secondary text-secondary-emphasis bg-secondary-subtle'
+                        ][$status] ?? 'secondary bg-secondary-subtle';
+                        ?>
+                        <span class="badge border-0 rounded-pill px-2.5 py-1.5 <?= $class ?>">
+                          <?= ucfirst($status) ?>
+                        </span>
+                      </td>
+                      <td class="pe-3 py-3 text-end text-secondary font-monospace" style="font-size: 12px;">
+                        <?= date("d M Y", strtotime($loan['created_at'])) ?>
+                      </td>
+                    </tr>
+                  <?php endwhile; ?>
+                <?php endif; ?>
               </tbody>
             </table>
-          <nav>
-
-<ul class="pagination">
-
-
-<?php for($i=1;$i<=$totalPages;$i++): ?>
-
-
-<li class="page-item 
-<?=$page==$i?'active':''?>">
-
-
-<a class="page-link"
-href="?view=history&page=<?=$i?>">
-
-<?=$i?>
-
-</a>
-
-
-</li>
-
-
-<?php endfor;?>
-
-
-</ul>
-
-</nav>
           </div>
 
-        </div>
+          <!-- CLEAN MODERN PAGINATION ROW -->
+          <?php if ($totalPages > 1): ?>
+            <nav class="mt-4 pt-2">
+              <ul class="pagination justify-content-center pagination-sm gap-1 mb-0">
+                <!-- Previous Button -->
+                <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                  <a class="page-link rounded-2 border-0 bg-light text-dark px-3 py-2" href="?view=history&page=<?= $page - 1 ?>">
+                    <i class="bi bi-chevron-left"></i>
+                  </a>
+                </li>
 
+                <!-- Page Matrix loop -->
+                <?php for($i = 1; $i <= $totalPages; $i++): ?>
+                  <li class="page-item fw-bold">
+                    <a class="page-link rounded-2 border-0 px-3 py-2 <?= $page == $i ? 'bg-success text-white' : 'bg-light text-dark' ?>" href="?view=history&page=<?= $i ?>">
+                      <?= $i ?>
+                    </a>
+                  </li>
+                <?php endfor; ?>
+
+                <!-- Next Button -->
+                <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
+                  <a class="page-link rounded-2 border-0 bg-light text-dark px-3 py-2" href="?view=history&page=<?= $page + 1 ?>">
+                    <i class="bi bi-chevron-right"></i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          <?php endif; ?>
+
+        </div>
       <?php endif; ?>
 
     </div>
   </div>
 </div>
 
-
 <script>
+document.getElementById("loanForm")?.addEventListener("submit", function(e){
+  e.preventDefault();
+  let formData = new FormData(this);
 
-document
-.getElementById("loanForm")
-.addEventListener("submit",function(e){
-
-e.preventDefault();
-
-
-let formData=new FormData(this);
-
-
-fetch(
-"<?= $company_info['main-server'] ?>",
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-
-body:JSON.stringify({
-
-action:"/member/create-loan",
-amount:formData.get("amount"),
-
-duration:formData.get("duration"),
-
-reason:formData.get("reason")
-})
-
-})
-.then(res=>res.json())
-
-.then(data=>{
-
-
-if(data.success){
-
-
-Swal.fire({
-
-icon:"success",
-
-title:"Loan Submitted",
-
-text:data.message
-
-})
-.then(()=>{
-
-location.href="?view=history";
-
+  fetch("<?= $company_info['main-server'] ?? '' ?>", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      action: "/member/create-loan",
+      amount: formData.get("amount"),
+      duration: formData.get("duration"),
+      reason: formData.get("reason")
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.success){
+      Swal.fire({
+        icon: "success",
+        title: "Loan Submitted",
+        text: data.message
+      }).then(() => {
+        location.href = "?view=history";
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: data.message
+      });
+    }
+  });
 });
-
-
-}else{
-
-
-Swal.fire({
-
-icon:"error",
-
-title:"Failed",
-
-text:data.message
-
-});
-
-
-}
-
-
-});
-
-
-});
-
-
 </script>

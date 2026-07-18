@@ -682,57 +682,6 @@ switch ($action) {
         }
         exit;
 
-    case '/admin/delete-wallet':
-        $session_uid   = $_SESSION['admin_uid'] ?? '';
-        $session_token = $_SESSION['admin_token'] ?? '';
-
-        if (empty($session_uid) || empty($session_token)) {
-            echo json_encode(["success" => false, "message" => "Unauthorized access encounter."]);
-            exit;
-        }
-
-        $auth_check = $conn->prepare("SELECT id FROM admin WHERE uid = ? AND token = ? AND is_active = 1 LIMIT 1");
-        $auth_check->bind_param("ss", $session_uid, $session_token);
-        $auth_check->execute();
-        if ($auth_check->get_result()->num_rows === 0) {
-            echo json_encode(["success" => false, "message" => "Session invalid or expired."]);
-            exit;
-        }
-
-        $id = (int)($data['id'] ?? 0);
-
-        // Integrity Check: Is this wallet tied to pending or active user deposit requests?
-        $check_stmt = $conn->prepare("SELECT COUNT(*) as active_count FROM deposits WHERE wallet_id = ?");
-        if ($check_stmt) {
-            $check_stmt->bind_param("i", $id);
-            $check_stmt->execute();
-            $count = $check_stmt->get_result()->fetch_assoc()['active_count'];
-            $check_stmt->close();
-
-            if ($count > 0) {
-                echo json_encode([
-                    'success' => false, 
-                    'message' => 'Database constraint rejection: This wallet address has active deposit logs tracked against it and cannot be deleted.'
-                ]);
-                exit;
-            }
-        }
-
-        // Delete Execution
-        $delete_stmt = $conn->prepare("DELETE FROM wallets WHERE id = ?");
-        if ($delete_stmt) {
-            $delete_stmt->bind_param("i", $id);
-            if ($delete_stmt->execute()) {
-                echo json_encode(['success' => true, 'message' => 'Collection wallet removed successfully from active assets inventory.']);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Database failed to complete drop transaction query.']);
-            }
-            $delete_stmt->close();
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to prepare the deletion statement.']);
-        }
-        exit;
-
     // ==========================================
     // INVESTMENT BRACKET/PACKAGE MANAGEMENT CASES
     // ==========================================
@@ -841,154 +790,80 @@ switch ($action) {
         }
         exit;
 
+    default:
 
+    case '/admin/delete-wallet':
+        // Integrity Check: Is this wallet tied to pending or active user deposit requests?
+        // Adjust the column and table names to match your schema (e.g., deposits, transactions)
+        $check_stmt = $conn->prepare("SELECT COUNT(*) as active_count FROM deposits WHERE wallet_id = ?");
+        if ($check_stmt) {
+            $check_stmt->bind_param("i", $id);
+            $check_stmt->execute();
+            $count = $check_stmt->get_result()->fetch_assoc()['active_count'];
+            $check_stmt->close();
 
-
-        case "/admin/adjust-balance":
-        // 1. Session Auth Protection Check
-        $session_uid   = $_SESSION['admin_uid'] ?? '';
-        $session_token = $_SESSION['admin_token'] ?? '';
-
-        if (empty($session_uid) || empty($session_token)) {
-            echo json_encode(["success" => false, "message" => "Unauthorized access encounter."]);
-            exit;
-        }
-
-        $auth_check = $conn->prepare("SELECT id FROM admin WHERE uid = ? AND token = ? AND is_active = 1 LIMIT 1");
-        $auth_check->bind_param("ss", $session_uid, $session_token);
-        $auth_check->execute();
-        if ($auth_check->get_result()->num_rows === 0) {
-            echo json_encode(["success" => false, "message" => "Session invalid or expired."]);
-            exit;
-        }
-
-        // 2. Extract Processing Payload Parameters
-        $user_uid   = trim($data['user_uid'] ?? '');
-        $type       = trim($data['type'] ?? ''); // 'credit' or 'debit'
-        $amount     = (float)($data['amount'] ?? 0);
-        $reason     = trim($data['reason'] ?? 'Administrative Balance Adjustment');
-
-        if (empty($user_uid) || !in_array($type, ['credit', 'debit']) || $amount <= 0) {
-            echo json_encode(["success" => false, "message" => "Required context parameters are missing or invalid."]);
-            exit;
-        }
-
-        // 3. Begin Atomic Transaction Thread
-        $conn->begin_transaction();
-
-        try {
-            // Lock and verify user wallet existence
-            $wallet_stmt = $conn->prepare("SELECT wallet_balance FROM user_wallet WHERE user_uid = ? FOR UPDATE");
-            $wallet_stmt->bind_param("s", $user_uid);
-            $wallet_stmt->execute();
-            $wallet = $wallet_stmt->get_result()->fetch_assoc();
-
-            if (!$wallet) {
-                throw new Exception("Target user wallet record not found.");
+            if ($count > 0) {
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Database constraint rejection: This wallet address has active deposit logs tracked against it and cannot be deleted.'
+                ]);
+                exit;
             }
+        }
 
-            $current_balance = (float)$wallet['wallet_balance'];
-
-            if ($type === 'credit') {
-                $update_wallet = $conn->prepare("UPDATE user_wallet SET wallet_balance = wallet_balance + ? WHERE user_uid = ?");
-                $tx_direction = 'credit';
-                $notif_title  = "Account Credited";
-                $notif_msg    = "Your account balance has been credited with $" . number_format($amount, 2) . " by administration. Reason: " . $reason;
+        // Delete Execution
+        $delete_stmt = $conn->prepare("DELETE FROM wallets WHERE id = ?");
+        if ($delete_stmt) {
+            $delete_stmt->bind_param("i", $id);
+            if ($delete_stmt->execute()) {
+                echo json_encode(['success' => true, 'message' => 'Collection wallet removed successfully from active assets inventory.']);
             } else {
-                // Safeguard against negative balances
-                if ($current_balance < $amount) {
-                    throw new Exception("Insufficient balance to execute this administrative debit modification.");
-                }
-                $update_wallet = $conn->prepare("UPDATE user_wallet SET wallet_balance = wallet_balance - ? WHERE user_uid = ?");
-                $tx_direction = 'debit';
-                $notif_title  = "Account Debited";
-                $notif_msg    = "Your account balance has been debited by $" . number_format($amount, 2) . " by administration. Reason: " . $reason;
+                echo json_encode(['success' => false, 'message' => 'Database failed to complete drop transaction query.']);
             }
-
-            // Execute balance adjustment
-            $update_wallet->bind_param("ds", $amount, $user_uid);
-            $update_wallet->execute();
-
-            // Log entry into the ledger transactions table
-            $tx_uid    = "TXA" . strtoupper(bin2hex(random_bytes(8)));
-            $tx_type   = 'adjustment';
-            $tx_status = 'success';
-            $ref_id    = 'ADM-ADJ';
-
-            $tx_stmt = $conn->prepare("
-                INSERT INTO transactions 
-                (transaction_uid, user_uid, type, reference_id, amount, direction, status, description) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            $tx_stmt->bind_param("ssssdsss", $tx_uid, $user_uid, $tx_type, $ref_id, $amount, $tx_direction, $tx_status, $reason);
-            $tx_stmt->execute();
-
-            // Generate User Notification entry
-            $notif_stmt = $conn->prepare("INSERT INTO notifications (user_uid, title, message, seen, notification_type, created_at) VALUES (?, ?, ?, 0, 'system', NOW())");
-            $notif_stmt->bind_param("sss", $user_uid, $notif_title, $notif_msg);
-            $notif_stmt->execute();
-
-            $conn->commit();
-            echo json_encode(["success" => true, "message" => "User account wallet balance updated successfully."]);
-            exit;
-
-        } catch (Exception $e) {
-            $conn->rollback();
-            echo json_encode(["success" => false, "message" => $e->getMessage()]);
-            exit;
+            $delete_stmt->close();
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to prepare deletion system statements.']);
         }
         break;
 
-    case "/admin/toggle-user-status":
-        // 1. Session Auth Protection Check
-        $session_uid   = $_SESSION['admin_uid'] ?? '';
-        $session_token = $_SESSION['admin_token'] ?? '';
 
-        if (empty($session_uid) || empty($session_token)) {
-            echo json_encode(["success" => false, "message" => "Unauthorized access encounter."]);
-            exit;
+    case '/admin/delete-plan':
+        // Integrity Check: Are users currently subscribed to this investment plan tier?
+        // Adjust table/column names to match your schema (e.g., user_investments, active_investments)
+        $check_stmt = $conn->prepare("SELECT COUNT(*) as active_subs FROM user_investments WHERE plan_id = ? AND status = 'active'");
+        if ($check_stmt) {
+            $check_stmt->bind_param("i", $id);
+            $check_stmt->execute();
+            $count = $check_stmt->get_result()->fetch_assoc()['active_subs'];
+            $check_stmt->close();
+
+            if ($count > 0) {
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Database constraint rejection: Active subscriptions are currently tracking returns against this package.'
+                ]);
+                exit;
+            }
         }
 
-        $auth_check = $conn->prepare("SELECT id FROM admin WHERE uid = ? AND token = ? AND is_active = 1 LIMIT 1");
-        $auth_check->bind_param("ss", $session_uid, $session_token);
-        $auth_check->execute();
-        if ($auth_check->get_result()->num_rows === 0) {
-            echo json_encode(["success" => false, "message" => "Session invalid or expired."]);
-            exit;
-        }
-
-        // 2. Extract Status Payload Parameters
-        $user_uid = trim($data['user_uid'] ?? '');
-        $status   = isset($data['status']) ? (int)$data['status'] : -1; // Expecting 1 (active) or 0 (suspended)
-
-        if (empty($user_uid) || !in_array($status, [0, 1], true)) {
-            echo json_encode(["success" => false, "message" => "Required user identification or validation parameters missing."]);
-            exit;
-        }
-
-        // 3. Mutate User Status State
-        // Assuming your master users table contains columns 'uid' and 'is_active' based on standard patterns in your codebase
-        $stmt = $conn->prepare("UPDATE users SET is_active = ? WHERE uid = ?");
-        
-        if (!$stmt) {
-            echo json_encode(["success" => false, "message" => "System database schema fault encountered."]);
-            exit;
-        }
-
-        $stmt->bind_param("is", $status, $user_uid);
-        
-        if ($stmt->execute()) {
-            $status_label = ($status === 1) ? "activated" : "suspended";
-            echo json_encode([
-                "success" => true, 
-                "message" => "User profile system status safely updated to {$status_label}."
-            ]);
+        // Delete Execution
+        $delete_stmt = $conn->prepare("DELETE FROM investment_plan WHERE id = ?");
+        if ($delete_stmt) {
+            $delete_stmt->bind_param("i", $id);
+            if ($delete_stmt->execute()) {
+                echo json_encode(['success' => true, 'message' => 'Investment package tier dropped safely from the platform directory.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Database engine error on direct target row deletion execution.']);
+            }
+            $delete_stmt->close();
         } else {
-            echo json_encode(["success" => false, "message" => "Failed to update targeted user status switch."]);
+            echo json_encode(['success' => false, 'message' => 'Structural query compiling failure context inside backend handler.']);
         }
-        exit;
+        break;
 
-    default:
-        echo json_encode(["success" => false, "message" => "Invalid endpoints endpoint request action context."]);
+        echo json_encode([
+            "success" => false,
+            "message" => "Invalid request."
+        ]);
         exit;
 }

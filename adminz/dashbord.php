@@ -46,26 +46,39 @@
 
             <!-- Card Module 2: User Index Metrics -->
             <div class="col-6 col-md-4 col-xl-3">
-                <a href="/admin/users" class="card border-0 shadow-sm bg-white rounded-4 p-3.5 h-100 text-decoration-none transition-hover">
+                <a href="/admin-users" class="card border-0 shadow-sm bg-white rounded-4 p-3.5 h-100 text-decoration-none transition-hover">
                     <div class="text-info mb-3">
                         <div class="bg-info bg-opacity-10 rounded-3 d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                             <i class="bi bi-people-fill fs-4"></i>
                         </div>
                     </div>
-                    <h6 class="fw-bold text-dark mb-1">User Registers</h6>
+                    <h6 class="fw-bold text-dark mb-1">User information</h6>
+                    <p class="text-secondary small font-monospace mb-0" style="font-size: 11px; line-height: 1.35;">Modify synchronized profiles.</p>
+                </a>
+            </div>
+
+            <!-- Card Module 2: User Index Metrics -->
+            <div class="col-6 col-md-4 col-xl-3">
+                <a href="/admin-loans" class="card border-0 shadow-sm bg-white rounded-4 p-3.5 h-100 text-decoration-none transition-hover">
+                    <div class="text-info mb-3">
+                        <div class="bg-info bg-opacity-10 rounded-3 d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                            <i class="bi bi-piggy-bank  fs-4"></i>
+                        </div>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">Loan & registration</h6>
                     <p class="text-secondary small font-monospace mb-0" style="font-size: 11px; line-height: 1.35;">Modify synchronized profiles.</p>
                 </a>
             </div>
 
             <!-- Card Module 3: Share Distribution Allocation Pools -->
             <div class="col-6 col-md-4 col-xl-3">
-                <a href="/admin/shares" class="card border-0 shadow-sm bg-white rounded-4 p-3.5 h-100 text-decoration-none transition-hover">
+                <a href="/admin-investment-plan" class="card border-0 shadow-sm bg-white rounded-4 p-3.5 h-100 text-decoration-none transition-hover">
                     <div class="text-primary mb-3">
                         <div class="bg-primary bg-opacity-10 rounded-3 d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                             <i class="bi bi-pie-chart-fill fs-4"></i>
                         </div>
                     </div>
-                    <h6 class="fw-bold text-dark mb-1">Pool Shares</h6>
+                    <h6 class="fw-bold text-dark mb-1">wallet & investment</h6>
                     <p class="text-secondary small font-monospace mb-0" style="font-size: 11px; line-height: 1.35;">Re-weight snapshot metrics.</p>
                 </a>
             </div>
