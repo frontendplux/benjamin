@@ -293,3 +293,86 @@ body.dark-mode a{
     </div>
 </div>
 <div id="google_translate_element" style="display:none;"></div>
+
+
+<!-- Mobile Sticky Bottom Navigation -->
+<footer class="d-md-none fixed-bottom border-top shadow p-2" id="mobile-sticky-footer">
+  <div class="d-flex justify-content-around align-items-center w-100">
+    
+    <a href="/member" class="d-flex flex-column align-items-center text-decoration-none <?= $dataUrl == '/member' ? 'active-nav' : '' ?>">
+      <i class="bi bi-house fs-5"></i>
+      <span class="footer-label">Home</span>
+    </a>
+
+    <a href="/make-deposit" class="d-flex flex-column align-items-center text-decoration-none <?= $dataUrl == '/make-deposit' ? 'active-nav' : '' ?>">
+      <i class="bi bi-wallet2 fs-5"></i>
+      <span class="footer-label">Deposit</span>
+    </a>
+
+    <a href="/reinvest" class="d-flex flex-column align-items-center text-decoration-none <?= $dataUrl == '/reinvest' ? 'active-nav' : '' ?>">
+      <i class="bi bi-piggy-bank fs-5"></i>
+      <span class="footer-label">Reinvest</span>
+    </a>
+
+    <a href="/wallet-connect" class="d-flex flex-column align-items-center text-decoration-none <?= $dataUrl == '/wallet-connect' ? 'active-nav' : '' ?>">
+      <i class="bi bi-plugin fs-5"></i>
+      <span class="footer-label">Connect</span>
+    </a>
+
+    <a href="/profile" class="d-flex flex-column align-items-center text-decoration-none <?= $dataUrl == '/profile' ? 'active-nav' : '' ?>">
+      <i class="bi bi-person fs-5"></i>
+      <span class="footer-label">Profile</span>
+    </a>
+
+  </div>
+</footer>
+<style>
+    /* Mobile Footer Base & Light Mode */
+/* Mobile Footer Base & Light Mode (Deep Green Background) */
+#mobile-sticky-footer {
+    background-color: #0f2b1d !important;
+    border-color: #198754 !important;
+    z-index: 1030;
+}
+
+#mobile-sticky-footer a {
+    color: rgba(255, 255, 255, 0.6); /* Semi-transparent white for unselected text */
+    transition: color 0.2s ease;
+}
+
+#mobile-sticky-footer a.active-nav,
+#mobile-sticky-footer a:hover {
+    color: #198754 !important; /* Bright green highlight for active states */
+}
+
+.footer-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-top: 3px;
+}
+
+/* Dark Mode Overrides for Mobile Footer */
+body.dark-mode #mobile-sticky-footer {
+    background-color: #1a1a1a !important;
+    border-color: #333333 !important;
+}
+
+body.dark-mode #mobile-sticky-footer a {
+    color: #aaaaaa;
+}
+
+body.dark-mode #mobile-sticky-footer a.active-nav,
+body.dark-mode #mobile-sticky-footer a:hover {
+    color: #8ec5ff !important; /* Light blue accent for active elements in dark mode */
+}
+
+/* Padding to avoid layout overlap */
+body {
+    padding-bottom: 75px;
+}
+@media (min-width: 768px) {
+    body {
+        padding-bottom: 0;
+    }
+}
+</style>

@@ -28,7 +28,7 @@ jobs:
           local-dir: ./
 
           # Change this if your website is in another directory
-          server-dir: /public_html/
+          server-dir: /
 
           # Don't delete existing files
           dangerous-clean-slate: false
