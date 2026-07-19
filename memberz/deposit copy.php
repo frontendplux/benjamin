@@ -123,7 +123,7 @@ $wallet = $wallet->get_result()->fetch_all(MYSQLI_ASSOC);
 
                 <!-- Interactive Interface Controls Block -->
                 <div class="mt-auto pt-3 border-top border-light-subtle">
-                  <form onsubmit="handlePackageSubmit(event, this)">
+                  <form>
                     <input type="hidden" name="package_id" value="<?= $invest['id'] ?>">
                     <div class="mb-2">
                       <label class="small text-muted mb-1 font-monospace" style="font-size: 11px;">Select Asset Source</label>
@@ -204,85 +204,127 @@ $wallet = $wallet->get_result()->fetch_all(MYSQLI_ASSOC);
   </div>
 </div>
 <script>
-// Combined handler function for both Enter keypresses and button clicks
-async function handlePackageSubmit(event, form) {
-    if (event) event.preventDefault(); // Stop standard browser page refresh
+document.querySelectorAll(".select-package").forEach(btn => {
 
-    const btn = form.querySelector(".select-package");
-    const package_id = form.querySelector("[name='package_id']").value;
-    const wallet_id = form.querySelector("[name='wallet']").value;
-    const amount = form.querySelector("[name='amount']").value;
+    btn.onclick = async () => {
 
-    if (!wallet_id) {
-        Swal.fire({
-            icon: "warning",
-            text: "Please select wallet"
-        });
-        return;
-    }
+        const form = btn.closest("form");
 
-    if (!amount) {
-        Swal.fire({
-            icon: "warning",
-            text: "Please enter amount"
-        });
-        return;
-    }
+        const package_id = btn.dataset.package;
+        const wallet_id = form.querySelector("[name='wallet']").value;
+        const amount = form.querySelector("[name='amount']").value;
 
-    // Disable the button to prevent double-clicks
-    btn.disabled = true;
 
-    try {
-        const res = await fetch("<?= $company_info['main-server'] ?>", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                action: "/member/select-package",
-                package_id: package_id,
-                wallet_id: wallet_id,
-                amount: amount
-            })
-        });
+        if(!wallet_id){
 
-        const data = await res.json();
-        btn.disabled = false;
-
-        if (!data.success) {
             Swal.fire({
-                icon: "error",
-                text: data.message
+                icon:"warning",
+                text:"Please select wallet"
             });
+
             return;
         }
 
-        Swal.fire({
-            icon: "success",
-            title: "Package Selected",
-            text: "Proceed to deposit now?",
-            showCancelButton: true,
-            confirmButtonText: "Deposit Now"
-        }).then(result => {
-            if (result.isConfirmed) {
-                location.href = "/deposit-payment";
+
+        if(!amount){
+
+            Swal.fire({
+                icon:"warning",
+                text:"Please enter amount"
+            });
+
+            return;
+        }
+
+
+        btn.disabled = true;
+
+
+        try {
+
+            const res = await fetch("<?= $company_info['main-server'] ?>", {
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    action:"/member/select-package",
+
+                    package_id:package_id,
+
+                    wallet_id:wallet_id,
+
+                    amount:amount
+
+                })
+
+            });
+
+
+            const data = await res.json();
+
+
+            btn.disabled = false;
+
+
+            if(!data.success){
+
+                Swal.fire({
+
+                    icon:"error",
+
+                    text:data.message
+
+                });
+
+                return;
+
             }
-        });
 
-    } catch (error) {
-        btn.disabled = false;
-        Swal.fire({
-            icon: "error",
-            text: "Something went wrong"
-        });
+
+            Swal.fire({
+
+                icon:"success",
+
+                title:"Package Selected",
+
+                text:"Proceed to deposit now?",
+
+                showCancelButton:true,
+
+                confirmButtonText:"Deposit Now"
+
+            }).then(result=>{
+
+                if(result.isConfirmed){
+
+                    location.href="/deposit-payment";
+
+                }
+
+            });
+
+
+        }catch(error){
+
+            btn.disabled=false;
+
+            Swal.fire({
+
+                icon:"error",
+
+                text:"Something went wrong"
+
+            });
+
+        }
+
+
     }
-}
 
-// Bind button clicks explicitly just in case semantic structure varies
-document.querySelectorAll(".select-package").forEach(btn => {
-    btn.onclick = (e) => {
-        const form = btn.closest("form");
-        handlePackageSubmit(e, form);
-    };
 });
 </script>
