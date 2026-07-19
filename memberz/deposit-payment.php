@@ -29,7 +29,7 @@ $deposit = $conn->prepare("
         w.network,
         w.coin_symbol,
         w.wallet_address,
-        W.description as wallet_description
+        w.description as wallet_description
 
     FROM deposits d
 
