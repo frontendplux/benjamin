@@ -81,7 +81,7 @@ include __DIR__."/header.php";
             <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Max Capital:</span><span class="fw-semibold text-dark">$400</span></div>
             <div class="d-flex justify-content-between small"><span class="text-muted">Duration:</span><span class="fw-medium text-success">48 Hours</span></div>
           </div>
-          <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto">Initialize Plan</a>
+          <!-- <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto">Initialize Plan</a> -->
         </div>
       </div>
 
@@ -100,7 +100,7 @@ include __DIR__."/header.php";
             <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Max Capital:</span><span class="fw-semibold text-dark">$800</span></div>
             <div class="d-flex justify-content-between small"><span class="text-muted">Duration:</span><span class="fw-medium text-success">3 Days</span></div>
           </div>
-          <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto">Initialize Plan</a>
+          <!-- <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto">Initialize Plan</a> -->
         </div>
       </div>
 
@@ -120,7 +120,7 @@ include __DIR__."/header.php";
             <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Max Capital:</span><span class="fw-semibold text-dark">$1,500</span></div>
             <div class="d-flex justify-content-between small"><span class="text-muted">Duration:</span><span class="fw-medium text-success">30 Hours</span></div>
           </div>
-          <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto shadow-sm">Initialize Plan</a>
+          <!-- <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto shadow-sm">Initialize Plan</a> -->
         </div>
       </div>
 
@@ -139,7 +139,7 @@ include __DIR__."/header.php";
             <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Max Capital:</span><span class="fw-semibold text-dark">$2,500</span></div>
             <div class="d-flex justify-content-between small"><span class="text-muted">Duration:</span><span class="fw-medium text-success">7 Days</span></div>
           </div>
-          <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto">Initialize Plan</a>
+          <!-- <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto">Initialize Plan</a> -->
         </div>
       </div>
 
@@ -158,7 +158,7 @@ include __DIR__."/header.php";
             <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Max Capital:</span><span class="fw-semibold text-dark">$5,000</span></div>
             <div class="d-flex justify-content-between small"><span class="text-muted">Duration:</span><span class="fw-medium text-success">2 Days</span></div>
           </div>
-          <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto">Initialize Plan</a>
+          <!-- <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto">Initialize Plan</a> -->
         </div>
       </div>
 
@@ -177,7 +177,7 @@ include __DIR__."/header.php";
             <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Max Capital:</span><span class="fw-semibold text-dark">$12,000 <span class="text-success font-monospace" style="font-size: 11px;">USDT</span></span></div>
             <div class="d-flex justify-content-between small"><span class="text-muted">Duration:</span><span class="fw-medium text-success">30 Days</span></div>
           </div>
-          <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto">Initialize Plan</a>
+          <!-- <a href="#" class="btn btn-success w-100 py-2.5 small fw-medium rounded-3 mt-auto">Initialize Plan</a> -->
         </div>
       </div>
 
