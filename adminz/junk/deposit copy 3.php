@@ -1,15 +1,12 @@
 <?php 
 include __DIR__."/header.php";
-
 // 1. Get current page tab filter (Default to 'pending' if no tab is clicked)
 $status = $_GET['page'] ?? 'pending';
-
 // --- PAGINATION CONFIGURATION ---
 $limit = 8; // Number of records per page
 $current_pagination_page = isset($_GET['p']) ? max(1, (int)$_GET['p']) : 1;
 $offset = ($current_pagination_page - 1) * $limit;
 // --------------------------------
-
 // 2. Handle Action Click (Approve / Reject / Cancel)
 if (isset($_GET['action']) && isset($_GET['id'])) {
     $action = $_GET['action'];
@@ -61,7 +58,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
                     }
                 }
                 
-                // Refresh page safely preserving current page pagination number
+                // Refresh page safely to mirror structural dashboard updates (Preserving current page pagination number if applicable)
                 header("Location: ?page=" . $status . "&p=" . $current_pagination_page);
                 exit;
             }
@@ -76,14 +73,11 @@ $count_stmt->execute();
 $total_rows = $count_stmt->get_result()->fetch_assoc()['total'];
 $total_pages = ceil($total_rows / $limit);
 
-// 4. Fetch filtered data based on selected tab + User Name JOIN + Pagination Limits
-// Note: Joined 'users' table on user_uid to get the depositor's name (u.name)
-$deposit = $conn->prepare("SELECT d.*, ip.name as plan_name, w.network, w.coin_symbol, u.first_name as depositor_name, 
-                           u.last_name as depositor_lastname
+// 4. Fetch filtered data based on selected tab + Pagination Limits
+$deposit = $conn->prepare("SELECT d.*, ip.name as plan_name , w.network, w.coin_symbol
                            FROM deposits d
-                           LEFT JOIN investment_plan ip ON d.investment_plan_id = ip.id
-                           LEFT JOIN wallets w ON d.wallet_id = w.id
-                           LEFT JOIN users u ON d.user_uid = u.uid
+                           JOIN investment_plan ip ON d.investment_plan_id = ip.id
+                           join wallets w on d.wallet_id = w.id
                            WHERE d.status = ? 
                            ORDER BY d.id DESC 
                            LIMIT ? OFFSET ?");
@@ -125,11 +119,10 @@ $all_deposits = $result->fetch_all(MYSQLI_ASSOC);
                         <thead class="table-light">
                             <tr>
                                 <th class="ps-3">User UID</th>
-                                <th>Depositor Name</th>
                                 <th>Plan</th>
                                 <th>Amount</th>
                                 <th>Proof of Payment</th>
-                                <th>Wallet</th>
+                                <th>wallet</th>
                                 <th>Reference</th>
                                 <th>Status / Actions</th>
                                 <th class="pe-3">Approved By</th>
@@ -138,7 +131,7 @@ $all_deposits = $result->fetch_all(MYSQLI_ASSOC);
                         <tbody>
                             <?php if (empty($all_deposits)): ?>
                                 <tr>
-                                    <td colspan="9" class="text-center text-muted py-4">No deposits found in this section.</td>
+                                    <td colspan="7" class="text-center text-muted py-4">No deposits found in this section.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach($all_deposits as $depositor): ?>
@@ -146,11 +139,8 @@ $all_deposits = $result->fetch_all(MYSQLI_ASSOC);
                                         <!-- Dynamic User UID -->
                                         <td class="ps-3"><code class="small"><?= htmlspecialchars($depositor['user_uid']) ?></code></td>
                                         
-                                        <!-- Depositor Name -->
-                                        <td class="fw-semibold text-dark"><?= htmlspecialchars($depositor['depositor_name']." ".$depositor['depositor_lastname'] ?? 'N/A') ?></td>
-                                        
                                         <!-- Plan Name -->
-                                        <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle"><?= htmlspecialchars($depositor['plan_name'] ?? 'N/A') ?></span></td>
+                                        <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle"><?= htmlspecialchars($depositor['plan_name']) ?></span></td>
                                         
                                         <!-- Amount -->
                                         <td class="fw-bold">$<?= htmlspecialchars(number_format($depositor['amount'], 2)) ?></td>
@@ -165,18 +155,21 @@ $all_deposits = $result->fetch_all(MYSQLI_ASSOC);
                                                 <span class="text-muted small">No proof</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td><span class="text-muted small"><?= htmlspecialchars($depositor['coin_symbol'] ?? '') . "&nbsp;(" . htmlspecialchars($depositor['network'] ?? '') . ")" ?></span></td>
+                                        <td><span class="text-muted small"><?= htmlspecialchars($depositor['coin_symbol'])."&nbsp;(" .htmlspecialchars($depositor['network']). " )" ?></span></td>
                                         <!-- Reference -->
                                         <td><span class="text-monospace text-muted small"><?= htmlspecialchars($depositor['transaction_reference'] ?? 'N/A') ?></span></td>
+                                        
                                         
                                         <!-- Status Action Buttons / Badges -->
                                         <td>
                                             <?php if ($depositor['status'] === 'pending' || $depositor['status'] === 'reviewing'): ?>
+                                                <!-- Action triggers for Pending or Reviewing items -->
                                                 <div class="d-flex gap-1">
                                                     <a href="?page=<?= $status ?>&action=approve&id=<?= $depositor['id'] ?>&p=<?= $current_pagination_page ?>" class="btn btn-sm btn-success py-0 px-2 small shadow-sm">Approve</a>
                                                     <a href="?page=<?= $status ?>&action=reject&id=<?= $depositor['id'] ?>&p=<?= $current_pagination_page ?>" class="btn btn-sm btn-danger py-0 px-2 small shadow-sm">Reject</a>
                                                 </div>
                                             <?php else: ?>
+                                                <!-- Fixed labels for processed states -->
                                                 <?php 
                                                     $curr_status = strtolower($depositor['status']);
                                                     $badge_color = 'bg-secondary-subtle text-secondary border-secondary-subtle';
