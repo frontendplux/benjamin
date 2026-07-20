@@ -12,211 +12,178 @@ if (!$data) {
 $action = $data['action'] ?? '';
 switch ($action) {
     case '/register':
-    $firstname = trim($data['firstname'] ?? '');
-    $lastname  = trim($data['lastname'] ?? '');
-    $email     = strtolower(trim($data['email'] ?? ''));
-    $phone     = trim($data['phone'] ?? '');
-    $country   = trim($data['country'] ?? '');
-    $password  = $data['password'] ?? '';
-    $confirm   = $data['confirm_password'] ?? '';
-    $referral  = trim($data['referral_code'] ?? '');
-
-    // Validation
-    if (empty($firstname) || empty($lastname) || empty($email) || empty($phone) || empty($country) || empty($password)) {
-        exit(json_encode([
-            "success" => false,
-            "message" => "All fields are required."
-        ]));
-    }
-
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        exit(json_encode([
-            "success" => false,
-            "message" => "Invalid email address."
-        ]));
-    }
-
-    if (strlen($password) < 8) {
-        exit(json_encode([
-            "success" => false,
-            "message" => "Password must be at least 8 characters."
-        ]));
-    }
-
-    if ($password !== $confirm) {
-        exit(json_encode([
-            "success" => false,
-            "message" => "Passwords do not match."
-        ]));
-    }
-
-    // Email exists?
-    $check = $conn->prepare("SELECT id FROM users WHERE email=? LIMIT 1");
-    $check->bind_param("s", $email);
-    $check->execute();
-    $check->store_result();
-
-    if ($check->num_rows > 0) {
-        exit(json_encode([
-            "success" => false,
-            "message" => "Email already exists."
-        ]));
-    }
-
-    // Phone exists?
-    $check = $conn->prepare("SELECT id FROM users WHERE phone=? LIMIT 1");
-    $check->bind_param("s", $phone);
-    $check->execute();
-    $check->store_result();
-
-    if ($check->num_rows > 0) {
-        exit(json_encode([
-            "success" => false,
-            "message" => "Phone number already exists."
-        ]));
-    }
-
-    do {
-        $uid = "INV-" .
-            strtoupper(substr(bin2hex(random_bytes(4)), 0, 8)) .
-            strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
-
-        $stmt = $conn->prepare("SELECT id FROM users WHERE uid=? LIMIT 1");
-        $stmt->bind_param("s", $uid);
-        $stmt->execute();
-        $stmt->store_result();
-    } while ($stmt->num_rows > 0);
-
-    do {
-        $token = bin2hex(random_bytes(32));
-
-        $stmt = $conn->prepare("SELECT id FROM users WHERE token=? LIMIT 1");
-        $stmt->bind_param("s", $token);
-        $stmt->execute();
-        $stmt->store_result();
-    } while ($stmt->num_rows > 0);
-
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-    $insert = $conn->prepare("
-        INSERT INTO users
-        (
-            uid,
-            token,
-            first_name,
-            last_name,
-            email,
-            phone,
-            country,
-            password
-        )
-        VALUES
-        (?,?,?,?,?,?,?,?)
-    ");
-
-    $insert->bind_param(
-        "ssssssss",
-        $uid,
-        $token,
-        $firstname,
-        $lastname,
-        $email,
-        $phone,
-        $country,
-        $hashed_password
-    );
-
-    if (!$insert->execute()) {
-        exit(json_encode([
-            "success" => false,
-            "message" => "Unable to create account."
-        ]));
-    }
-
-    if (!empty($referral)) {
-        $ref = $conn->prepare("SELECT uid FROM users WHERE uid=? LIMIT 1");
-        $ref->bind_param("s", $referral);
-        $ref->execute();
-        $result = $ref->get_result();
-
-        if ($result->num_rows > 0) {
-            $save = $conn->prepare("
-                INSERT INTO referrals
-                (
-                    uid,
-                    referred_by
-                )
-                VALUES
-                (?,?)
-            ");
-
-            $save->bind_param(
-                "ss",
-                $uid,
-                $referral
-            );
-
-            $save->execute();
+        $firstname = trim($data['firstname'] ?? '');
+        $lastname  = trim($data['lastname'] ?? '');
+        $email     = strtolower(trim($data['email'] ?? ''));
+        $phone     = trim($data['phone'] ?? '');
+        $country   = trim($data['country'] ?? '');
+        $password  = $data['password'] ?? '';
+        $confirm   = $data['confirm_password'] ?? '';
+        $referral  = trim($data['referral_code'] ?? '');
+        // Validation
+        if (empty($firstname) || empty($lastname) || empty($email) || empty($phone) || empty($country) || empty($password)) {
+            exit(json_encode([
+                "success" => false,
+                "message" => "All fields are required."
+            ]));
         }
-    }
 
-    $_SESSION['user_id'] = $uid;
-    $_SESSION['token'] = $token;
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            exit(json_encode([
+                "success" => false,
+                "message" => "Invalid email address."
+            ]));
+        }
 
-    // Send Welcome Email
-    $fullName = trim($firstname . ' ' . $lastname);
-    $subject  = "Welcome aboard, " . htmlspecialchars($firstname) . "!";
-    $emailBody = '
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Welcome</title>
-      <style>
-        body { margin: 0; padding: 0; background-color: #f4f6f9; font-family: Arial, sans-serif; }
-        .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .header { background-color: #1a73e8; padding: 30px; text-align: center; color: #ffffff; }
-        .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-        .body-content { padding: 30px; color: #333333; line-height: 1.6; }
-        .body-content h2 { color: #1a73e8; margin-top: 0; }
-        .btn { display: inline-block; padding: 12px 24px; margin-top: 20px; background-color: #1a73e8; color: #ffffff !important; text-decoration: none; border-radius: 5px; font-weight: bold; }
-        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #777777; border-top: 1px solid #eeeeee; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="body-content">
-          <h2>Hi ' . htmlspecialchars($firstname) . ',</h2>
-          <p>We are thrilled to have you join us! Your account has been created successfully.</p>
-          <p><strong>Your Account Details:</strong></p>
-          <ul>
-            <li><strong>User ID:</strong> ' . htmlspecialchars($uid) . '</li>
-            <li><strong>Email:</strong> ' . htmlspecialchars($email) . '</li>
-          </ul>
-          <p>Click below to jump straight to your dashboard and get started:</p>
-          <a href="https://brighpartinvestment.com/login" class="btn">Go to Dashboard</a>
-        </div>
-        <div class="footer">
-          <p>&copy; ' . date("Y") . ' <a href="https://brighpartinvestment.com">Brightpathinvestment</a>. All rights reserved.</p>
-        </div>
-      </div>
-    </body>
-    </html>';
+        if (strlen($password) < 8) {
+            exit(json_encode([
+                "success" => false,
+                "message" => "Password must be at least 8 characters."
+            ]));
+        }
 
-    // Invoke mail function
-    sendMail($email, $fullName, $subject, $emailBody);
+        if ($password !== $confirm) {
+            exit(json_encode([
+                "success" => false,
+                "message" => "Passwords do not match."
+            ]));
+        }
 
-    echo json_encode([
-        "success" => true,
-        "message" => "Registration completed successfully.",
-        "data" => [
-            "uid" => $uid,
-            "redirect" => "/dashboard"
-        ]
-    ]);
+        // Email exists?
+        $check = $conn->prepare("SELECT id FROM users WHERE email=? LIMIT 1");
+        $check->bind_param("s", $email);
+        $check->execute();
+        $check->store_result();
 
-    break;
+        if ($check->num_rows > 0) {
+            exit(json_encode([
+                "success" => false,
+                "message" => "Email already exists."
+            ]));
+        }
+
+        // Phone exists?
+        $check = $conn->prepare("SELECT id FROM users WHERE phone=? LIMIT 1");
+        $check->bind_param("s", $phone);
+        $check->execute();
+        $check->store_result();
+
+        if ($check->num_rows > 0) {
+            exit(json_encode([
+                "success" => false,
+                "message" => "Phone number already exists."
+            ]));
+        }
+
+        do {
+
+            $uid = "INV-" .
+                strtoupper(substr(bin2hex(random_bytes(4)), 0, 8)) .
+                strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
+
+            $stmt = $conn->prepare("SELECT id FROM users WHERE uid=? LIMIT 1");
+            $stmt->bind_param("s", $uid);
+            $stmt->execute();
+            $stmt->store_result();
+
+        } while ($stmt->num_rows > 0);
+
+        do {
+
+            $token = bin2hex(random_bytes(32));
+
+            $stmt = $conn->prepare("SELECT id FROM users WHERE token=? LIMIT 1");
+            $stmt->bind_param("s", $token);
+            $stmt->execute();
+            $stmt->store_result();
+
+        } while ($stmt->num_rows > 0);
+
+
+        $password = password_hash($password, PASSWORD_DEFAULT);
+
+        $insert = $conn->prepare("
+            INSERT INTO users
+            (
+                uid,
+                token,
+                first_name,
+                last_name,
+                email,
+                phone,
+                country,
+                password
+            )
+            VALUES
+            (?,?,?,?,?,?,?,?)
+        ");
+
+        $insert->bind_param(
+            "ssssssss",
+            $uid,
+            $token,
+            $firstname,
+            $lastname,
+            $email,
+            $phone,
+            $country,
+            $password
+        );
+
+        if (!$insert->execute()) {
+
+            exit(json_encode([
+                "success" => false,
+                "message" => "Unable to create account."
+            ]));
+
+        }
+        if (!empty($referral)) {
+
+            $ref = $conn->prepare("SELECT uid FROM users WHERE uid=? LIMIT 1");
+            $ref->bind_param("s", $referral);
+            $ref->execute();
+            $result = $ref->get_result();
+
+            if ($result->num_rows > 0) {
+
+                $save = $conn->prepare("
+                    INSERT INTO referrals
+                    (
+                        uid,
+                        referred_by
+                    )
+                    VALUES
+                    (?,?)
+                ");
+
+                $save->bind_param(
+                    "ss",
+                    $uid,
+                    $referral
+                );
+
+                $save->execute();
+
+            }
+
+        }
+
+        $_SESSION['user_id'] = $uid;
+        $_SESSION['token'] = $token;
+
+        echo json_encode([
+            "success" => true,
+            "message" => "Registration completed successfully.",
+            "data" => [
+                "uid" => $uid,
+                "redirect" => "/dashboard"
+            ]
+        ]);
+
+        break;
+
+    default:
 
     case '/login':
     $email = strtolower(trim($data['email'] ?? ''));
