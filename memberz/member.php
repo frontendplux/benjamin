@@ -199,6 +199,161 @@ $total_withdrawal = (float)$withdrawal
     ->fetch_assoc()['total'];
 ?>
 
+<?php
+/**
+ * Automated Investment Maturity & Payout Processor
+ * To be included in header.php or run via Cron Job
+ */
+
+// Basic safeguard to ensure $conn exists
+if (isset($conn) && $conn instanceof mysqli) {
+
+    // 1. Fetch all approved deposits where payout hasn't been disbursed yet (is_received = 0)
+    $query = "
+        SELECT 
+            d.id AS deposit_id,
+            d.deposit_uid,
+            d.user_uid,
+            d.amount,
+            d.approved_at,
+            d.created_at,
+            p.roi,
+            p.duration_value,
+            p.duration_unit
+        FROM deposits d
+        INNER JOIN investment_plan p ON d.investment_plan_id = p.id
+        WHERE d.status = 'approved' 
+          AND d.is_received = 0
+    ";
+
+    $result = $conn->query($query);
+
+    if ($result && $result->num_rows > 0) {
+        $now = new DateTime();
+
+        while ($row = $result->fetch_assoc()) {
+            $depositId      = $row['deposit_id'];
+            $depositUid     = $row['deposit_uid'];
+            $userUid        = $row['user_uid'];
+            $principal      = (float)$row['amount'];
+            $roiPercent     = (float)$row['roi'];
+            $durationValue  = (int)$row['duration_value'];
+            $durationUnit   = strtolower($row['duration_unit']);
+
+            // Determine start time (use approved_at if available, fallback to created_at)
+            $startTimeStr = !empty($row['approved_at']) ? $row['approved_at'] : $row['created_at'];
+            $startTime    = new DateTime($startTimeStr);
+
+            // Calculate Maturity Date
+            $maturityTime = clone $startTime;
+            switch ($durationUnit) {
+                case 'hours':
+                    $maturityTime->modify("+{$durationValue} hours");
+                    break;
+                case 'days':
+                    $maturityTime->modify("+{$durationValue} days");
+                    break;
+                case 'weeks':
+                    $maturityTime->modify("+{$durationValue} weeks");
+                    break;
+                case 'months':
+                    $maturityTime->modify("+{$durationValue} months");
+                    break;
+                case 'years':
+                    $maturityTime->modify("+{$durationValue} years");
+                    break;
+            }
+
+            // Check if current time has passed maturity time
+            if ($now >= $maturityTime) {
+                
+                // Calculate Payout: Principal + ROI profit
+                $profit = ($principal * $roiPercent) / 100;
+                $totalPayout = $principal + $profit;
+
+                // Begin Atomic Transaction to guarantee data integrity
+                $conn->begin_transaction();
+
+                try {
+                    // 2. Mark deposit as paid (is_received = 1) immediately to prevent duplicate execution
+                    $updateDeposit = $conn->prepare("
+                        UPDATE deposits 
+                        SET is_received = 1 
+                        WHERE id = ? AND is_received = 0
+                    ");
+                    $updateDeposit->bind_param("i", $depositId);
+                    $updateDeposit->execute();
+
+                    // Ensure the row was actually updated (concurrency lock check)
+                    if ($updateDeposit->affected_rows === 0) {
+                        $conn->rollback();
+                        continue;
+                    }
+
+                    // 3. Update or create user_wallet balance
+                    $updateWallet = $conn->prepare("
+                        INSERT INTO user_wallet (user_uid, wallet_balance)
+                        VALUES (?, ?)
+                        ON DUPLICATE KEY UPDATE wallet_balance = wallet_balance + VALUES(wallet_balance)
+                    ");
+                    $updateWallet->bind_param("sd", $userUid, $totalPayout);
+                    $updateWallet->execute();
+
+                    // 4. Record the ROI transaction entry
+                    $trxUid = "TRX" . time() . rand(1000, 9999);
+                    $trxDescription = "Investment payout for Deposit #{$depositUid} (Principal: $" . number_format($principal, 2) . " + ROI: $" . number_format($profit, 2) . ")";
+
+                    $insertTrx = $conn->prepare("
+                        INSERT INTO transactions (
+                            transaction_uid,
+                            user_uid,
+                            type,
+                            reference_id,
+                            asset,
+                            amount,
+                            direction,
+                            status,
+                            description
+                        ) VALUES (?, ?, 'roi', ?, 'USD', ?, 'credit', 'success', ?)
+                    ");
+                    $insertTrx->bind_param(
+                        "sssds",
+                        $trxUid,
+                        $userUid,
+                        $depositUid,
+                        $totalPayout,
+                        $trxDescription
+                    );
+                    $insertTrx->execute();
+
+                    // 5. Notify the user
+                    $notifTitle = "Investment Matured";
+                    $notifMsg   = "Your investment ({$depositUid}) has matured. $" . number_format($totalPayout, 2) . " has been credited to your wallet.";
+
+                    $insertNotif = $conn->prepare("
+                        INSERT INTO notifications (
+                            user_uid,
+                            title,
+                            message,
+                            notification_type
+                        ) VALUES (?, ?, ?, 'investment')
+                    ");
+                    $insertNotif->bind_param("sss", $userUid, $notifTitle, $notifMsg);
+                    $insertNotif->execute();
+
+                    // Commit all statements
+                    $conn->commit();
+
+                } catch (Exception $e) {
+                    $conn->rollback();
+                    error_log("Failed to process payout for deposit UID {$depositUid}: " . $e->getMessage());
+                }
+            }
+        }
+    }
+}
+?>
+
 <!-- ANDROID-STYLE SLIDER DRAWER PANEL (OFFCANVAS) -->
     <div class="container bg-light p-0 h-100 mt-2">
       <div class="row g-0 h-100">

@@ -20,7 +20,10 @@ $closeMenuMe = [
     ['Reinvest','/reinvest','bi-piggy-bank'],
     ['Apply for Loan','/apply-for-loan','bi-bank'],
     ['My Plans','/investment-plans','bi-pie-chart'],
+    // ['Promo Plans','/promo-plans','bi-gift'],
     ['Wallet Connect','/wallet-connect','bi-plugin'],
+    // ['Withdraw Funds','/withdraw-funds','bi-arrow-down-left-circle'],
+    // ['Beneficiary Shares','/beneficiary-shares','bi-chevron-down'],
     ['Account History','/account-history','bi-chevron-down'],
     ['Referrals','/referrals','bi-people']
 ];
@@ -66,21 +69,6 @@ if (!$response['success']) {
 }
 // Logged in user
 $user = $response['data'];
-
-/*
-|--------------------------------------------------------------------------
-| Check Unread Notifications for Alert Bell Indicator
-|--------------------------------------------------------------------------
-*/
-$hasUnread = 0;
-if (!empty($user['uid'])) {
-    $notifCheck = $conn->prepare("SELECT COUNT(*) FROM notifications WHERE user_uid = ? AND seen = 0");
-    $notifCheck->bind_param("s", $user['uid']);
-    $notifCheck->execute();
-    $notifCheck->bind_result($hasUnread);
-    $notifCheck->fetch();
-    $notifCheck->close();
-}
 ?>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -103,7 +91,7 @@ if (!empty($user['uid'])) {
 <script src="/main/script.js"></script>
 
 <style>
-iframe {
+    iframe{
     display:none;
 }
 /* Smooth transition */
@@ -114,129 +102,107 @@ body,
 .card,
 .btn,
 .form-control,
-.table {
-    transition: all .25s ease;
+.table{
+    transition:all .25s ease;
 }
 
 /* LIGHT MODE */
-body.light-mode {
-    background: #f5f7fb;
-    color: #212529;
+body.light-mode{
+    background:#f5f7fb;
+    color:#212529;
 }
 
-body.light-mode .navbar {
-    background: #0f2b1d !important;
+body.light-mode .navbar{
+    background:#0f2b1d !important;
 }
 
-body.light-mode .offcanvas {
-    background: #0f2b1d !important;
+body.light-mode .offcanvas{
+    background:#0f2b1d !important;
 }
 
-body.light-mode .dropdown-menu {
-    background: #fff;
-    color: #212529;
+body.light-mode .dropdown-menu{
+    background:#fff;
+    color:#212529;
 }
 
 /* DARK MODE */
-body.dark-mode {
-    background: #121212;
-    color: #f8f9fa;
+body.dark-mode{
+    background:#121212;
+    color:#f8f9fa;
 }
 
-body.dark-mode .navbar {
-    background: #1a1a1a !important;
-    border-color: #333 !important;
+body.dark-mode .navbar{
+    background:#1a1a1a !important;
+    border-color:#333 !important;
 }
 
-body.dark-mode .offcanvas {
-    background: #1b1b1b !important;
-    border-color: #333 !important;
+body.dark-mode .offcanvas{
+    background:#1b1b1b !important;
+    border-color:#333 !important;
 }
 
-body.dark-mode .dropdown-menu {
-    background: #242424;
-    color: #fff;
-    border-color: #444;
+body.dark-mode .dropdown-menu{
+    background:#242424;
+    color:#fff;
+    border-color:#444;
 }
 
-body.dark-mode .dropdown-item {
-    color: #ddd;
+body.dark-mode .dropdown-item{
+    color:#ddd;
 }
 
-body.dark-mode .dropdown-item:hover {
-    background: #343434;
-    color: #fff;
+body.dark-mode .dropdown-item:hover{
+    background:#343434;
+    color:#fff;
 }
 
-body.dark-mode .dropdown-header {
-    color: #fff;
+body.dark-mode .dropdown-header{
+    color:#fff;
 }
 
-body.dark-mode .btn-link {
-    color: #ddd;
+body.dark-mode .btn-link{
+    color:#ddd;
 }
 
-body.dark-mode .bg-light {
-    background: #2d2d2d !important;
+body.dark-mode .bg-light{
+    background:#2d2d2d !important;
 }
 
-body.dark-mode .text-dark {
-    color: #fff !important;
+body.dark-mode .text-dark{
+    color:#fff !important;
 }
 
-body.dark-mode .card {
-    background: #202020;
-    color: #fff;
-    border-color: #333;
+body.dark-mode .card{
+    background:#202020;
+    color:#fff;
+    border-color:#333;
 }
 
-body.dark-mode .form-control {
-    background: #2a2a2a;
-    color: #fff;
-    border-color: #444;
+body.dark-mode .form-control{
+    background:#2a2a2a;
+    color:#fff;
+    border-color:#444;
 }
 
-body.dark-mode .form-control:focus {
-    background: #2a2a2a;
-    color: #fff;
+body.dark-mode .form-control:focus{
+    background:#2a2a2a;
+    color:#fff;
 }
 
-body.dark-mode table {
-    color: #fff;
+body.dark-mode table{
+    color:#fff;
 }
 
-body.dark-mode hr {
-    border-color: #444;
+body.dark-mode hr{
+    border-color:#444;
 }
 
-body.dark-mode a {
-    color: #8ec5ff;
-}
-
-/* Notification Dot Pulse Effect */
-.notification-dot {
-    width: 10px;
-    height: 10px;
-    top: 3px;
-    right: 3px;
-}
-.notification-dot.has-unread {
-    animation: pulse-red 1.8s infinite;
-}
-@keyframes pulse-red {
-    0% {
-        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
-    }
+body.dark-mode a{
+    color:#8ec5ff;
 }
 </style>
 <script src="/memberz/script.js"></script>
-    <title><?= $company_info['title'] ?></title>
+    <title>Document</title>
 </head>
 <body class="<?= $theme === 'dark' ? 'dark-mode' : 'light-mode' ?>">
 
@@ -277,13 +243,12 @@ body.dark-mode a {
             <i class="bi <?= $theme === 'dark' ? 'bi-sun-fill text-warning' : 'bi-moon-stars text-success' ?>"></i>
         </a>
 
-      <!-- Alert Notification Bell Hub Indicator -->
+      <!-- Alert Notification Bell Notification Hub Indicator -->
       <div class="position-relative">
         <a href="/notification" class="btn btn-link text-white-50 p-0 border-0 fs-5 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
           <i class="bi bi-bell"></i>
         </a>
-        <!-- Dynamic Red/Green Indicator Dot -->
-        <span class="position-absolute notification-dot rounded-circle border border-2 border-dark <?= $hasUnread > 0 ? 'bg-danger has-unread' : 'bg-success' ?>"></span>
+        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-2 border-dark rounded-circle"></span>
       </div>
 
       <!-- User Session Avatar Profile Framework -->
@@ -329,6 +294,7 @@ body.dark-mode a {
 </div>
 <div id="google_translate_element" style="display:none;"></div>
 
+
 <!-- Mobile Sticky Bottom Navigation -->
 <footer class="d-md-none fixed-bottom border-top shadow p-2" id="mobile-sticky-footer">
   <div class="d-flex justify-content-around align-items-center w-100">
@@ -360,8 +326,8 @@ body.dark-mode a {
 
   </div>
 </footer>
-
 <style>
+    /* Mobile Footer Base & Light Mode */
 /* Mobile Footer Base & Light Mode (Deep Green Background) */
 #mobile-sticky-footer {
     background-color: #0f2b1d !important;
@@ -370,13 +336,13 @@ body.dark-mode a {
 }
 
 #mobile-sticky-footer a {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.6); /* Semi-transparent white for unselected text */
     transition: color 0.2s ease;
 }
 
 #mobile-sticky-footer a.active-nav,
 #mobile-sticky-footer a:hover {
-    color: #198754 !important;
+    color: #198754 !important; /* Bright green highlight for active states */
 }
 
 .footer-label {
@@ -397,7 +363,7 @@ body.dark-mode #mobile-sticky-footer a {
 
 body.dark-mode #mobile-sticky-footer a.active-nav,
 body.dark-mode #mobile-sticky-footer a:hover {
-    color: #8ec5ff !important;
+    color: #8ec5ff !important; /* Light blue accent for active elements in dark mode */
 }
 
 /* Padding to avoid layout overlap */
