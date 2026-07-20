@@ -178,7 +178,7 @@ include __DIR__."/header.php";
             <p class="card-text text-muted small bg-light p-3 rounded mb-4">
               Ideal for beginners testing the platform with short-term exposure and stable growth opportunities.
             </p>
-            <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button>
+            <!-- <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button> -->
           </div>
         </div>
       </div>
@@ -205,7 +205,7 @@ include __DIR__."/header.php";
             <p class="card-text text-muted small bg-light p-3 rounded mb-4">
               Balanced plan for users seeking moderate growth with controlled market exposure.
             </p>
-            <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button>
+            <!-- <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button> -->
           </div>
         </div>
       </div>
@@ -233,7 +233,7 @@ include __DIR__."/header.php";
             <p class="card-text text-muted small bg-light p-3 rounded mb-4">
               Designed for consistent daily growth using diversified crypto investment strategies.
             </p>
-            <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button>
+            <!-- <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button> -->
           </div>
         </div>
       </div>
@@ -260,7 +260,7 @@ include __DIR__."/header.php";
             <p class="card-text text-muted small bg-light p-3 rounded mb-4">
               Targets higher returns through active trading, staking, and portfolio management techniques.
             </p>
-            <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button>
+            <!-- <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button> -->
           </div>
         </div>
       </div>
@@ -287,7 +287,7 @@ include __DIR__."/header.php";
             <p class="card-text text-muted small bg-light p-3 rounded mb-4">
               Built for experienced investors willing to embrace higher volatility for stronger potential rewards.
             </p>
-            <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button>
+            <!-- <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button> -->
           </div>
         </div>
       </div>
@@ -314,7 +314,7 @@ include __DIR__."/header.php";
             <p class="card-text text-muted small bg-light p-3 rounded mb-4">
               Designed for partners, investment groups, families, and associates looking to pool capital together for shared opportunities.
             </p>
-            <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button>
+            <!-- <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button> -->
           </div>
         </div>
       </div>
@@ -342,7 +342,7 @@ include __DIR__."/header.php";
             <p class="card-text text-muted small bg-light p-3 rounded mb-4">
               Long-term aggressive growth plan aimed at maximizing capital expansion and wealth accumulation.
             </p>
-            <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button>
+            <!-- <button class="btn btn-success w-100 py-2 mt-auto">Invest Now</button> -->
           </div>
         </div>
       </div>
@@ -455,13 +455,13 @@ include __DIR__."/header.php";
       <!-- Column 2 (Offset heights for the masonry staggered effect) -->
       <div class="col-sm-6 col-md-4 col-lg-3">
         <div class="mb-3">
-          <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=500&q=80" 
+          <img src="/assest/image/six.png" 
                class="img-fluid rounded-4 shadow-sm w-100 border border-white border-2" 
                style="height: 280px; object-fit: cover;" 
                alt="Collaboration and Financial Strategy">
         </div>
         <div>
-          <img src="https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=500&q=80" 
+          <img src="/assest/image/five.png" 
                class="img-fluid rounded-4 shadow-sm w-100 border border-white border-2" 
                style="height: 370px; object-fit: cover;" 
                alt="Algorithmic Trading Yield Interface">
@@ -471,13 +471,13 @@ include __DIR__."/header.php";
       <!-- Column 3 -->
       <div class="col-sm-6 col-md-4 col-lg-3 d-none d-md-block">
         <div class="mb-3">
-          <img src="https://images.unsplash.com/photo-1642790106117-e829e14a795f?auto=format&fit=crop&w=500&q=80" 
+          <img src="/assest/image/one.jpeg" 
                class="img-fluid rounded-4 shadow-sm w-100 border border-white border-2" 
                style="height: 420px; object-fit: cover;" 
                alt="Global Blockchain Operations Network">
         </div>
         <div>
-          <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=500&q=80" 
+          <img src="/assest/image/two.jpeg" 
                class="img-fluid rounded-4 shadow-sm w-100 border border-white border-2" 
                style="height: 230px; object-fit: cover;" 
                alt="Executive Asset Management Consultations">
@@ -487,13 +487,13 @@ include __DIR__."/header.php";
       <!-- Column 4 -->
       <div class="col-sm-6 col-md-4 col-lg-3 d-none d-lg-block">
         <div class="mb-3">
-          <img src="https://images.unsplash.com/photo-1560520653-9e0e4c89fe11?auto=format&fit=crop&w=500&q=80" 
+          <img src="/assest/image/three.png" 
                class="img-fluid rounded-4 shadow-sm w-100 border border-white border-2" 
                style="height: 260px; object-fit: cover;" 
                alt="Secure Data Capital Transfers">
         </div>
         <div>
-          <img src="https://images.unsplash.com/photo-1622630998477-20aa696ecb05?auto=format&fit=crop&w=500&q=80" 
+          <img src="/assest/image/four.png" 
                class="img-fluid rounded-4 shadow-sm w-100 border border-white border-2" 
                style="height: 390px; object-fit: cover;" 
                alt="Crypto Tokens Liquidity Markets">
