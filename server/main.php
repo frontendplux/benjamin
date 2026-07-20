@@ -1724,6 +1724,59 @@ case "/member/create-withdrawal":
 break;
 
 
+case '/member/verify-deposit-status':
+        // 1. Session Authorization Gate
+        if (empty($_SESSION['user_id'])) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Authentication required"
+            ]);
+            break;
+        }
+
+        $user_uid = $_SESSION['user_id'];
+        $deposit_uid = $data['deposit_uid'] ?? '';
+
+        if (empty($deposit_uid)) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Missing identification metric"
+            ]);
+            break;
+        }
+
+        // 2. Query matching records securely using prepared statements
+        // Note: Make sure your deposits table has a user column (e.g., user_uid) to match session identity
+        $checkDeposit = $conn->prepare("
+            SELECT status 
+            FROM deposits 
+            WHERE deposit_uid = ? AND user_uid = ? 
+            LIMIT 1
+        ");
+
+        $checkDeposit->bind_param("ss", $deposit_uid, $user_uid);
+        $checkDeposit->execute();
+        $result = $checkDeposit->get_result()->fetch_assoc();
+
+        if (!$result) {
+            echo json_encode([
+                "success" => false,
+                "status" => "not_found",
+                "message" => "Record not located in system ledger"
+            ]);
+            break;
+        }
+
+        // 3. Evaluate state and return the payload to the waiting UI component
+        $status = strtolower($result['status']); // Standardize comparison matching
+
+        echo json_encode([
+            "success" => ($status === 'approved'),
+            "status" => $status,
+            "message" => "Status checked successfully."
+        ]);
+        break;
+
         echo json_encode([
             "success" => false,
             "message" => "Invalid request."

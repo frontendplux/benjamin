@@ -44,86 +44,41 @@ $deposit = $conn->prepare("
     LIMIT 1
 ");
 
-
 $deposit->bind_param("s", $deposit_uid);
-
 $deposit->execute();
-
 $depositData = $deposit->get_result()->fetch_assoc();
-
 
 if(!$depositData){
     header("Location: /investment-plans");
     exit;
 }
 
-
-
 $package_name = htmlspecialchars($depositData['package_name']);
 $description = htmlspecialchars($depositData['description']);
-
 $amount = (float)$depositData['amount'];
-
 $requested_amount = number_format($amount,2);
-
 $wallet_address = htmlspecialchars($depositData['wallet_address']);
-
 $network = htmlspecialchars($depositData['network']);
-
 $coin_symbol = htmlspecialchars($depositData['coin_symbol']);
-
 $roi = htmlspecialchars($depositData['roi']);
-
-$duration = htmlspecialchars(
-    $depositData['duration_value']." ".ucfirst($depositData['duration_unit'])
-);
-
+$duration = htmlspecialchars($depositData['duration_value']." ".ucfirst($depositData['duration_unit']));
 $min_limit = number_format($depositData['min_limit'],2);
-
 $max_limit = number_format($depositData['max_limit'],2);
-
 $approval = ucfirst(htmlspecialchars($depositData['approval']));
-
 $deposit_status = ucfirst(htmlspecialchars($depositData['deposit_status']));
-
-
 $trc20_address = $wallet_address;
 
-
-
 // Security check
-if(
-    $amount < $depositData['min_limit'] ||
-    $amount > $depositData['max_limit']
-){
-
+if($amount < $depositData['min_limit'] || $amount > $depositData['max_limit']){
     session_destroy();
-
     header("Location:/investment-plans");
-
     exit;
-
 }
 
-
-
-// Stop payment if already processed
-
-if(
-    in_array(
-        $depositData['deposit_status'],
-        [
-            "approved",
-            "rejected",
-            "cancelled"
-        ]
-    )
-){
-
+// Stop payment if already completed
+if(in_array($depositData['deposit_status'], ["approved", "rejected", "cancelled"])){
     header("Location:/dashboard");
-
     exit;
-
 }
 ?>
 
@@ -147,137 +102,58 @@ if(
 
       <!-- Main Layout Configuration Split -->
       <div class="row g-4 justify-content-center">
-        
-        <!-- Center Action Card Area -->
-        <div class="">
+        <div class="col-10 col-lg-8 w-100">
           <div class="card border-0 shadow-sm bg-white rounded-4 p-4 text-center">
             
             <!-- Protocol Header Branding -->
             <div class="mb-4">
               <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 py-1.5 px-3 rounded-pill fs-8 fw-medium mb-2">
-                TRON Network Protocol Enabled
+                <?= $network ?> Network Protocol Enabled
               </span>
-              <h5 class="fw-bold text-dark mb-1">Send USDT (TRC20)</h5>
-              <p class="text-muted small mb-0">Initiate your external blockchain transaction matching your intended node sizing.</p>
+              <h5 class="fw-bold text-dark mb-1">Send <?= $coin_symbol ?> (<?= $network ?>)</h5>
+              <p class="text-muted small mb-0">Transfer the exact asset balance required to clear your custom staking slot requirements.</p>
             </div>
 
             <!-- Inbound Target Funding Callout Box -->
             <div class="p-3 bg-light bg-opacity-70 border border-light-subtle rounded-4 mb-4">
-
-
-                <span class="text-muted font-monospace d-block mb-1"
-                style="font-size:11px;text-transform:uppercase;">
+              <span class="text-muted font-monospace d-block mb-1" style="font-size:11px;text-transform:uppercase;">
                 Deposit Amount
-                </span>
+              </span>
+              <span class="display-6 fw-bold text-dark font-monospace">
+                $<?= $requested_amount ?> <span class="fs-4 text-secondary"><?= $coin_symbol ?></span>
+              </span>
 
-
-                <span class="display-6 fw-bold text-dark font-monospace">
-
-                $<?= $requested_amount ?>
-
-                <span class="fs-4 text-secondary">
-                <?= $coin_symbol ?>
-                </span>
-
-                </span>
-
-
-
-                <div class="mt-4 text-start small text-secondary">
-
-
+              <div class="mt-4 text-start small text-secondary">
                 <div class="d-flex justify-content-between py-2 border-bottom">
-                <span>Deposit ID</span>
-
-                <strong class="text-dark">
-                <?= htmlspecialchars($deposit_uid) ?>
-                </strong>
-
+                  <span>Deposit ID</span>
+                  <strong class="text-dark"><?= htmlspecialchars($deposit_uid) ?></strong>
                 </div>
-
-
-
                 <div class="d-flex justify-content-between py-2 border-bottom">
-
-                <span>Investment Plan</span>
-
-                <strong class="text-success">
-                <?= $package_name ?>
-                </strong>
-
+                  <span>Investment Plan</span>
+                  <strong class="text-success"><?= $package_name ?></strong>
                 </div>
-
-
-
                 <div class="d-flex justify-content-between py-2 border-bottom">
-
-                <span>ROI</span>
-
-                <strong class="text-dark">
-                <?= $roi ?>%
-                </strong>
-
+                  <span>ROI</span>
+                  <strong class="text-dark"><?= $roi ?>%</strong>
                 </div>
-
-
-
                 <div class="d-flex justify-content-between py-2 border-bottom">
-
-                <span>Duration</span>
-
-                <strong class="text-dark">
-                <?= $duration ?>
-                </strong>
-
+                  <span>Duration</span>
+                  <strong class="text-dark"><?= $duration ?></strong>
                 </div>
-
-
-
-
                 <div class="d-flex justify-content-between py-2 border-bottom">
-
-                <span>Investment Range</span>
-
-                <strong class="text-dark">
-                $<?= $min_limit ?> -
-                $<?= $max_limit ?>
-                </strong>
-
+                  <span>Investment Range</span>
+                  <strong class="text-dark">$<?= $min_limit ?> - $<?= $max_limit ?></strong>
                 </div>
-
-
-
-                <div class="d-flex justify-content-between py-2 border-bottom">
-
-                <span>Approval Type</span>
-
-                <strong class="text-dark">
-                <?= $approval ?>
-                </strong>
-
-                </div>
-
-
-
                 <div class="d-flex justify-content-between py-2">
-
-                <span>Status</span>
-
-                <strong class="text-success">
-                <?= $deposit_status ?>
-                </strong>
-
+                  <span>Initial Status</span>
+                  <strong class="text-warning" id="live-status-badge"><?= $deposit_status ?></strong>
                 </div>
-
-
-                </div>
-
-
-                </div>
+              </div>
+            </div>
 
             <!-- Secured Copy Node Vector Component -->
             <div class="mb-4 text-start">
-              <label class="small text-muted mb-1 font-monospace d-block text-center" style="font-size: 11px;">Official <?= $coin_symbol ?> <?= $network ?> Deposit Address</label>
+              <label class="small text-muted mb-1 font-monospace d-block text-center" style="font-size: 11px;">Official Deposit Address</label>
               <div class="input-group">
                 <input type="text" id="walletAddress" class="form-control bg-light border-light-subtle py-2.5 font-monospace text-center small text-dark fw-medium rounded-start-3" value="<?= htmlspecialchars($trc20_address) ?>" readonly>
                 <button class="btn btn-success px-3 rounded-end-3" type="button" onclick="copyAddressText()">
@@ -286,85 +162,37 @@ if(
               </div>
             </div>
 
-            <hr class="text-light-subtle my-4">
-
-            <!-- PROOF OF PAYMENT SUBMISSION FORM -->
-            <form id="update_payment" enctype="multipart/form-data" class="text-start">
-              <input type="hidden" name="deposit_uid" value="<?= htmlspecialchars($deposit_uid) ?>">
-              
-              <h6 class="fw-bold text-dark mb-3">
-                <i class="bi bi-shield-check text-success me-2"></i>Manual Verification
-              </h6>
-              
-              <!-- Transaction Reference Input -->
-              <div class="mb-3">
-                <label for="transaction_ref" class="form-label small text-secondary fw-medium">Transaction Hash / Reference ID</label>
-                <input type="text" class="form-control border-light-subtle rounded-3 py-2 small font-monospace" id="transaction_ref" name="transaction_ref" placeholder="e.g., 0x7a8e... or Tron Transaction ID" required>
-              </div>
-
-              <!-- Drag and Drop Image Upload Container -->
-              <div class="mb-4">
-                <label class="form-label small text-secondary fw-medium">Upload Proof of Payment (Screenshot)</label>
-                <div id="drop-zone" class="border border-dashed border-secondary-subtle rounded-4 p-4 text-center bg-light bg-opacity-50 position-relative style-pointer" style="cursor: pointer;">
-                  <input type="file" name="proof_image" id="file-input" accept="image/*" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" required>
-                  <i class="bi bi-cloud-arrow-up text-secondary display-6 d-block mb-2"></i>
-                  <span class="d-block small text-dark fw-medium mb-1" id="file-status-text">Drag & drop your screenshot here or click to browse</span>
-                  <span class="text-muted font-monospace" style="font-size: 11px;">Supports: JPG, PNG, WEBP</span>
-                </div>
-              </div>
-
-              <hr>
-              
             <!-- Operational Flow Disclaimer Alert Block -->
             <div class="p-3 bg-light bg-opacity-50 border border-light-subtle rounded-3 text-start mb-4">
               <div class="d-flex gap-2">
                 <i class="bi bi-exclamation-triangle text-warning fs-5 mt-1"></i>
                 <div class="small text-secondary" style="line-height: 1.45;">
-                  <strong>Important Network Notice:</strong> <?=  $depositData['wallet_description'] ?>
+                  <strong>Important Network Notice:</strong> <?= $depositData['wallet_description'] ?>
                 </div>
               </div>
             </div>
 
+            <hr class="text-light-subtle my-4">
 
-
-<input type="hidden" 
-name="amount" 
-value="<?= $amount ?>">
-
-
-<input type="hidden" 
-name="wallet" 
-value="<?= htmlspecialchars($coin_symbol) ?>">
-
-<input type="hidden" name="action" value="/member/submit-deposit-proof">
-<input type="hidden" 
-name="network" 
-value="<?= htmlspecialchars($network) ?>">
-              <!-- Action Confirmation Button -->
-             <button 
-type="submit" 
-id="submitPayment"
-class="btn btn-success w-100 py-2 rounded-3 fw-bold shadow-sm">
-
-<i class="bi bi-wallet2 me-2"></i>
-Submit Payment For Review
-
-</button>
-            </form>
+            <!-- TRACKING AND INTERACTION HUB -->
+            <div id="payment-action-zone">
+              <button type="button" id="confirmPaymentBtn" class="btn btn-success w-100 py-3 rounded-3 fw-bold shadow-sm fs-5" onclick="startPaymentVerification()">
+                <i class="bi bi-check2-circle me-2"></i>I Have Made the Payment
+              </button>
+            </div>
 
           </div>
         </div>
-
-        <!-- Right Side Diagnostic Metric Sidebar Block -->
-
       </div>
 
     </div>
   </div>
 </div>
 
-<!-- CLIENT ACCELERATION INTERACTION SCRIPT -->
+<!-- CLIENT INTERACTION & REAL-TIME CHECK SCRIPT -->
 <script>
+let checkInterval = null;
+
 function copyAddressText() {
   var copyText = document.getElementById("walletAddress");
   copyText.select();
@@ -378,75 +206,81 @@ function copyAddressText() {
   }, 2000);
 }
 
-// Interactive file-drop UI enhancement
-const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file-input');
-const statusText = document.getElementById('file-status-text');
+function startPaymentVerification() {
+  // 1. Transform the action button zone into a real-time status loading state
+  const container = document.getElementById("payment-action-zone");
+  container.innerHTML = `
+    <div class="p-4 border border-light-subtle bg-light rounded-4 text-center shadow-inner">
+      <div class="spinner-border text-success mb-3" style="width: 2.5rem; height: 2.5rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <h6 class="fw-bold text-dark mb-1">Verifying Blockchain Settlement</h6>
+      <p class="text-muted small mb-0">Checking database records for confirmation. Please keep this screen open.</p>
+    </div>
+  `;
 
-fileInput.addEventListener('change', function(e) {
-  if (this.files && this.files[0]) {
-    statusText.innerText = "Selected: " + this.files[0].name;
-    dropZone.classList.remove('border-secondary-subtle');
-    dropZone.classList.add('border-success', 'bg-success', 'bg-opacity-10');
+  // Update visual status metric badge to pending/processing state
+  const statusBadge = document.getElementById("live-status-badge");
+  if(statusBadge) {
+    statusBadge.innerText = "Processing";
+    statusBadge.className = "text-primary";
   }
-});
 
-['dragenter', 'dragover'].forEach(eventName => {
-  dropZone.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    dropZone.classList.add('border-success', 'bg-success', 'bg-opacity-10');
-  }, false);
-});
+  // 2. Fire immediate call, then poll database every 4 seconds
+  checkPaymentStatus();
+  checkInterval = setInterval(checkPaymentStatus, 4000);
+}
 
-['dragleave', 'drop'].forEach(eventName => {
-  dropZone.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    if(!fileInput.files.length) {
-      dropZone.classList.remove('border-success', 'bg-success', 'bg-opacity-10');
-      dropZone.classList.add('border-secondary-subtle');
-    }
-  }, false);
-});
-
-document.getElementById("update_payment").addEventListener("submit", async function(e){
-    e.preventDefault();
-    const form = this;
-    const button = document.getElementById("submitPayment");
-    const formData = new FormData(form);
-    button.disabled = true;
-    button.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Submitting...`;
-    try{
-        const response = await fetch("<?= $company_info['main-server'] ?>",{
-        method:"POST",
-        body:formData
+async function checkPaymentStatus() {
+  try {
+    // Queries the same central data architecture via POST payload checks
+    const response = await fetch("<?= $company_info['main-server'] ?>", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        action: "/member/verify-deposit-status",
+        deposit_uid: "<?= htmlspecialchars($deposit_uid) ?>"
+      })
     });
+
     const data = await response.json();
-    button.disabled=false;
-        button.innerHTML=`<i class="bi bi-wallet2 me-2"></i> Submit Payment For Review`;
-        if(!data.success){
-            Swal.fire({
-                icon:"error",
-                title:"Submission Failed",
-                text:data.message
-            });
-            return;
-        }
-        Swal.fire({
-            icon:"success",
-            title:"Payment Submitted",
-            text:"Your deposit is now under review"
-        }).then(()=>{
-            location.href="/investment-plans";
-        });
-    }catch(error){
-        button.disabled=false;
-        button.innerHTML=`
-        <i class="bi bi-wallet2 me-2"></i> Submit Payment For Review`;
-        Swal.fire({
-            icon:"error",
-            title:"Server Error",
-            text:"Please try again"
-        });
+
+    if (data.success && data.status === "approved") {
+      // Success criteria met! Stop the cycle loop wrapper and redirect
+      clearInterval(checkInterval);
+      
+      Swal.fire({
+        icon: "success",
+        title: "Payment Confirmed!",
+        text: "Your capital stake allocation is now active.",
+        confirmButtonText: "Go to Dashboard"
+      }).then(() => {
+        location.href = "/dashboard";
+      });
+    } else if (data.status === "rejected" || data.status === "cancelled") {
+      clearInterval(checkInterval);
+      Swal.fire({
+        icon: "error",
+        title: "Transaction Stopped",
+        text: data.message || "This transaction sequence was declined."
+      }).then(() => {
+        location.href = "/investment-plans";
+      });
     }
-});
+    // else if (data.status === "pending") {
+    //   clearInterval(checkInterval);
+    //   Swal.fire({
+    //     icon: "error",
+    //     title: "Transaction Stopped",
+    //     text: data.message || "This transaction sequence was declined."
+    //   }).then(() => {
+    //     location.href = "/investment-plans";
+    //   });
+    // }
+  } catch (error) {
+    console.error("Status check ping failed:", error);
+  }
+}
 </script>

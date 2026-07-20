@@ -987,6 +987,7 @@ switch ($action) {
             echo json_encode(["success" => false, "message" => "Failed to update targeted user status switch."]);
         }
         exit;
+        
 
     default:
         echo json_encode(["success" => false, "message" => "Invalid endpoints endpoint request action context."]);
