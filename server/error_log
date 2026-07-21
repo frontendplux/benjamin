@@ -1,0 +1,3 @@
+[21-Jul-2026 09:30:48 UTC] PHP Warning:  Undefined variable $message in /home/bustofrj/brighpartinvestment/server/mailer.php on line 35
+[21-Jul-2026 09:30:48 UTC] PHP Warning:  Undefined variable $message in /home/bustofrj/brighpartinvestment/server/mailer.php on line 36
+[21-Jul-2026 09:30:48 UTC] Message body empty

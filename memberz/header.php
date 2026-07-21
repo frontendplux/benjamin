@@ -410,3 +410,7 @@ body {
     }
 }
 </style>
+
+<style>
+    #goog-gt-vt{display: none;}
+</style>

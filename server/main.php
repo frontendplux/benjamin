@@ -1,6 +1,6 @@
 <?php
 include __DIR__ . "/conn.php";
-include __DIR__."/../mailer.php";
+include __DIR__."/mailer.php";
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

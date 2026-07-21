@@ -90,3 +90,7 @@
   </div>
 </nav>
 <div id="google_translate_element" style="display:none;"></div>
+
+<style>
+    #goog-gt-vt{display: none;}
+</style>

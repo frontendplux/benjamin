@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,36 +7,26 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2"></script>
-    <script src="/memberz/script.js"></script>
     <link rel="shortcut icon" href="<?= $company_info['logo'] ?>" type="image/x-icon">
     <title><?= $company_info['title'] ?></title>
 </head>
 <body>
-<header class="bg-white sticky-top border-bottom shadow-sm">
+<header class="bg-white sticky-top">
     <div class="container d-flex justify-content-between py-3 align-items-center">
         <div class="text-center">
             <a class="d-inline-flex align-items-center fw-bold text-success fs-3 text-decoration-none" href="/">
-                <img src="<?= htmlspecialchars($company_info['logo']) ?>" style="width:60px" alt="<?= htmlspecialchars($company_info['name'] )?>">
+                  <img src="<?= htmlspecialchars($company_info['logo']) ?>" style="width:60px" alt="<?= htmlspecialchars($company_info['name'] )?>">
             </a>
         </div>
-        
-        <!-- Language Selector Dropdown -->
-        <div class="dropdown">
-            <button id="selectedLanguage" class="btn btn-outline-secondary dropdown-toggle btn-sm px-3 py-2 fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-globe me-1"></i> Language
-            </button>
-            <ul style="max-height: 300px; overflow: auto;" class="dropdown-menu dropdown-menu-end shadow border-light-subtle">
+        <div>
+            <select onchange="changeLang(this.value)" name="language" class="form-select">
+                <option selected disabled>Language</option>
                 <?php foreach ($languages as $language): ?>
-                    <li>
-                       <a class="dropdown-item small" href="#"
-                        onclick="changeLang('<?= htmlspecialchars($language[0], ENT_QUOTES) ?>', '<?= htmlspecialchars($language[1], ENT_QUOTES) ?>'); return false;">
-                            <?= htmlspecialchars($language[1]) ?>
-                        </a>
-                    </li>
+                    <option value="<?= htmlspecialchars($language[0]) ?>">
+                        <?= htmlspecialchars($language[1]) ?>
+                    </option>
                 <?php endforeach; ?>
-            </ul>
+            </select>
         </div>
     </div>
 </header>
@@ -129,6 +120,9 @@
 
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2"></script>
+<script src="/member/script.js"></script>
 <style>
     iframe{display: none;}
 </style>
@@ -271,7 +265,3 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
-
-<style>
-    #goog-gt-vt{display: none;}
-</style>
