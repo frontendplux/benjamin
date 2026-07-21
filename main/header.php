@@ -46,8 +46,22 @@
         </li>
       </ul>
 
+      
       <!-- Action Buttons (Right Side) -->
       <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 pt-2 pt-lg-0 border-top border-light border-lg-0">
+        
+
+       <!-- Language Selector Dropdown -->
+      <div class="dropdown d-block d-sm-block">
+        <button id="langauge-killer" class="btn btn-link text-white-50 text-decoration-none dropdown-toggle p-0 small fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          English
+        </button>
+        <ul style="max-height: 300px; overflow: auto;" class="dropdown-menu dropdown-menu-end border-light-subtle bg-white shadow">
+          <?php foreach ($languages as $language): ?>
+            <li><a onclick="document.getElementById('langauge-killer').innerHTML='<?= $language[1] ?>';changeLang('<?= $language[0] ?>')" class="dropdown-menu-item dropdown-item active bg-success text-white small" href="#"><?= $language[1] ?></a></li>
+          <?php endforeach ?>
+        </ul>
+      </div>
         <!-- Sign In Button -->
         <a href="/login" class="btn btn-link text-decoration-none text-dark fw-medium px-3 py-2 text-center">
           <i class="bi bi-box-arrow-in-right me-1"></i> Sign In

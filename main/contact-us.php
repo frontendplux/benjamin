@@ -75,7 +75,7 @@ include __DIR__."/header.php";
               <div>
                 <h3 class="h6 fw-bold text-dark mb-1">Email Matrix</h3>
                 <p class="text-muted mb-2" style="font-size: 13px;">Drop us a digital note at any hour.</p>
-                <a href="mailto:support@brightpath.com" class="text-success small fw-semibold text-decoration-none">support@brightpath.com</a>
+                <a href="mailto:support@brighpartinvestment.com" class="text-success small fw-semibold text-decoration-none">support@brighpartinvestment.com</a>
               </div>
             </div>
           </div>
