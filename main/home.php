@@ -47,7 +47,7 @@ include __DIR__."/header.php";
       <div class="col-lg-6 text-center">
         <!-- Replace the placeholder src with your actual crypto asset or illustration URL -->
         <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=600&q=80" 
-             alt="Bright Path Crypto Investment Illustration" 
+             alt="Bright Part Crypto Investment Illustration" 
              class="img-fluid rounded-4 shadow-sm"
              style="max-height: 450px; object-fit: cover;">
       </div>
@@ -102,7 +102,7 @@ include __DIR__."/header.php";
         </h2>
         
         <p class="text-muted mb-4 lead">
-          At Bright Path Investment, we believe navigating the cryptocurrency landscape shouldn't be complex or intimidating. We bridge the gap between volatile digital asset markets and secure, structured capital growth.
+          At Bright Part Investment, we believe navigating the cryptocurrency landscape shouldn't be complex or intimidating. We bridge the gap between volatile digital asset markets and secure, structured capital growth.
         </p>
         
         <p class="text-muted mb-4">
@@ -358,7 +358,7 @@ include __DIR__."/header.php";
           <div class="text-center mb-4">
             <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-semibold mb-2">ROI Calculator</span>
             <h2 class="fw-bold text-dark">Estimate Your Yields</h2>
-            <p class="text-muted small">Select your path and adjust your capital configuration instantly.</p>
+            <p class="text-muted small">Select your part and adjust your capital configuration instantly.</p>
           </div>
 
           <div class="row g-4">
@@ -439,13 +439,13 @@ include __DIR__."/header.php";
       <!-- Column 1 -->
       <div class="col-sm-6 col-md-4 col-lg-3">
         <div class="mb-3">
-          <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=500&q=80" 
+          <img src="/assest/image/1.png" 
                class="img-fluid rounded-4 shadow-sm w-100 border border-white border-2" 
                style="height: 400px; object-fit: cover;" 
                alt="Crypto Assets Analytics Setup">
         </div>
         <div>
-          <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=500&q=80" 
+          <img src="/assest/image/2.png" 
                class="img-fluid rounded-4 shadow-sm w-100 border border-white border-2" 
                style="height: 250px; object-fit: cover;" 
                alt="Digital Vault Wealth Security">
@@ -517,7 +517,7 @@ include __DIR__."/header.php";
     <div class="text-center mb-5">
       <span class="text-success fw-bold text-uppercase tracking-wider small d-block mb-2">Process Framework</span>
       <h2 class="display-6 fw-bold text-dark">How It Works</h2>
-      <p class="text-muted small mx-auto" style="max-width: 500px;">Get started today with Bright Path Investment in three transparent phases.</p>
+      <p class="text-muted small mx-auto" style="max-width: 500px;">Get started today with Bright Part Investment in three transparent phases.</p>
     </div>
 
     <!-- 3 Step Process Grid -->
@@ -534,7 +534,7 @@ include __DIR__."/header.php";
           </div>
           <h4 class="fw-bold text-dark h5 mb-2">Create An Account</h4>
           <p class="text-muted small mb-0">
-            It takes less than 3 minutes to set up and verify your verified profile on Bright Path Investment.
+            It takes less than 3 minutes to set up and verify your verified profile on Bright part Investment.
           </p>
         </div>
       </div>
@@ -635,7 +635,7 @@ include __DIR__."/header.php";
       <span class="text-success fw-bold text-uppercase tracking-wider small d-block mb-2">Success Stories</span>
       <h2 class="display-6 fw-bold text-dark">Client Testimonials</h2>
       <p class="text-muted small mx-auto" style="max-width: 500px;">
-        Discover how our global users are accelerating their digital capital with Bright Path Investment.
+        Discover how our global users are accelerating their digital capital with Bright Part Investment.
       </p>
     </div>
 
@@ -778,7 +778,7 @@ include __DIR__."/header.php";
               </div>
               <div>
                 <h4 class="fw-bold text-dark h6 mb-1">Email Terminal</h4>
-                <p class="text-muted small mb-0">support@brightpath.com</p>
+                <p class="text-muted small mb-0">support@brightpart.com</p>
                 <span class="text-success" style="font-size: 11px;"><i class="bi bi-clock me-1"></i> Response within 2 hours</span>
               </div>
             </div>
@@ -790,7 +790,7 @@ include __DIR__."/header.php";
               </div>
               <div>
                 <h4 class="fw-bold text-dark h6 mb-1">Community Grid</h4>
-                <p class="text-muted small mb-0">t.me/BrightPathOfficial</p>
+                <p class="text-muted small mb-0">t.me/BrightPartOfficial</p>
                 <span class="text-muted" style="font-size: 11px;">Join live verification chat</span>
               </div>
             </div>
@@ -967,7 +967,7 @@ include __DIR__."/header.php";
     background-size: 1.1rem;
   }
   .accordion-button:not(.collapsed)::after {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23198754'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23198754'%3e%3cpart fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") !important;
   }
 </style>
 
