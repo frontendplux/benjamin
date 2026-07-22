@@ -165,7 +165,8 @@ switch ($action) {
 
     // Send Welcome Email
     $fullName = trim($firstname . ' ' . $lastname);
-    $subject  = "Welcome aboard, " . htmlspecialchars($firstname) . "!";
+    // $subject  = "Welcome aboard, " . htmlspecialchars($firstname) . "!";
+    $subject="Dear Valued Investor";
     $emailBody = '
     <!DOCTYPE html>
     <html lang="en">
@@ -187,25 +188,25 @@ switch ($action) {
     <body>
       <div class="container">
         <div class="body-content">
-          <h2>Hi ' . htmlspecialchars($firstname) . ',</h2>
-          <p>We are thrilled to have you join us! Your account has been created successfully.</p>
-          <p><strong>Your Account Details:</strong></p>
-          <ul>
-            <li><strong>User ID:</strong> ' . htmlspecialchars($uid) . '</li>
-            <li><strong>Email:</strong> ' . htmlspecialchars($email) . '</li>
-          </ul>
-          <p>Click below to jump straight to your dashboard and get started:</p>
-          <a href="https://brighpartinvestment.com/login" class="btn">Go to Dashboard</a>
+          <h2>Dear ' . htmlspecialchars($firstname) . ',</h2>
+          <p>Welcome to Bright Part Investment Platform.</p>
+          <p>Thank you for choosing to join our growing community of investors. We are honored to be part of your financial journey and are committed to providing you with a secure, transparent, and rewarding investment experience.</p>
+          <p>At Bright Part Investment Platform, we believe in creating opportunities that help our members build a stronger financial future. Our dedicated team is here to support you every step of the way.</p>
+          <p>We encourage you to explore your account, familiarize yourself with the available features, and take advantage of the opportunities designed to help you achieve your investment goals.</p>
+          <p>Thank you for your trust and confidence in Bright Part Investment Platform.</p>
+          <p>We look forward to growing together.</p>
+          <p>Kind regards,</p>
+          <p>Bright Part Investment Platform <br> Customer Relations Team</p>
         </div>
         <div class="footer">
-          <p>&copy; ' . date("Y") . ' <a href="https://brighpartinvestment.com">Brightpathinvestment</a>. All rights reserved.</p>
+          <p>&copy; ' . date("Y") . ' <a href="https://brighpartinvestment.com">Brightpartinvestment</a>. All rights reserved.</p>
         </div>
       </div>
     </body>
     </html>';
 
     // Invoke mail function
-    sendMail($email, $fullName, $subject, $emailBody);
+    sendMail($email, "Bright Part investment", $subject, $emailBody);
 
     echo json_encode([
         "success" => true,

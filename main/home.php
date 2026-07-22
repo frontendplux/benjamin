@@ -14,7 +14,7 @@ include __DIR__."/header.php";
         </span>
         
         <h1 class="display-4 fw-bold text-dark mb-3 lh-sm">
-          Navigate Your Financial Future with <span class="text-success">Bright Path</span>
+          Navigate Your Financial Future with <span class="text-success">Bright Part</span>
         </h1>
         
         <p class="lead text-muted mb-4 fs-5">
@@ -147,7 +147,7 @@ include __DIR__."/header.php";
     
     <!-- Section Header -->
     <div class="text-center mb-5">
-      <h2 class="fw-bold text-success">Bright Path Investment</h2>
+      <h2 class="fw-bold text-success">Bright Part Investment</h2>
       <p class="text-muted mx-auto" style="max-width: 600px;">
         Choose an investment plan tailored to your financial goals. Clear horizons, stable growth, and flexible terms.
       </p>
