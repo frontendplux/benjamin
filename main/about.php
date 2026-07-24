@@ -16,7 +16,7 @@ include __DIR__."/header.php";
     
     <!-- Inline Subtext Description Segment -->
     <p class="text-success text-opacity-75 small mx-auto mb-4" style="max-width: 520px; font-size: 14px;">
-      Discover the infrastructure parameters, core mission criteria, and global vectors driving Bright Path Investment.
+      Discover the infrastructure parameters, core mission criteria, and global vectors driving Bright Part Investment.
     </p>
 
     <!-- CENTERED BREADCRUMB NAVIGATION LAYOUT (Home / About Us) -->
@@ -51,7 +51,7 @@ include __DIR__."/header.php";
     <!-- HERO HEADER: Core Branding Title -->
     <div class="text-center mb-5">
       <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 small fw-semibold mb-2">About Us</span>
-      <h1 class="display-5 fw-bold text-dark mb-3">Bright Path Investment</h1>
+      <h1 class="display-5 fw-bold text-dark mb-3">Bright Part Investment</h1>
       <p class="text-success fw-medium fs-5">Shaping the Future of Global Investment</p>
       <hr class="mx-auto border-success opacity-25" style="width: 80px; height: 3px;">
     </div>
@@ -61,7 +61,7 @@ include __DIR__."/header.php";
       <div class="col-md-6">
         <div class="card border-0 shadow-sm rounded-4 bg-white p-4 h-100">
           <p class="text-muted lh-lg mb-0 small">
-            Bright Path Investment is a global investment platform dedicated to delivering sophisticated financial solutions, fostering sustainable growth, and creating long-term value for investors worldwide. Through a combination of strategic insight, technological innovation, and operational excellence, we strive to help clients navigate an increasingly complex financial landscape with confidence.
+            Bright Part Investment is a global investment platform dedicated to delivering sophisticated financial solutions, fostering sustainable growth, and creating long-term value for investors worldwide. Through a combination of strategic insight, technological innovation, and operational excellence, we strive to help clients navigate an increasingly complex financial landscape with confidence.
           </p>
         </div>
       </div>
@@ -108,7 +108,7 @@ include __DIR__."/header.php";
           <span class="text-success small fw-semibold">Global Vision. Trusted Expertise.</span>
         </div>
         <div class="col-lg-8">
-          <p class="text-muted small lh-lg mb-3">Bright Path Investment operates with a broad international outlook, recognizing that opportunity extends beyond borders. We continuously monitor global economic developments, emerging industries, and evolving market trends to support informed decision-making and strategic investment planning.</p>
+          <p class="text-muted small lh-lg mb-3">Bright Part Investment operates with a broad international outlook, recognizing that opportunity extends beyond borders. We continuously monitor global economic developments, emerging industries, and evolving market trends to support informed decision-making and strategic investment planning.</p>
           <p class="text-muted small lh-lg mb-0">Our commitment to innovation enables us to leverage advanced technologies, data-driven insights, and modern financial infrastructure to enhance efficiency, strengthen security, and improve the overall investment experience.</p>
         </div>
       </div>
@@ -222,7 +222,7 @@ include __DIR__."/header.php";
         <div class="col-12 card border-0 shadow-sm rounded-4 bg-white p-4 text-center h-100">
           <div class="text-success mb-3 fs-3"><i class="bi bi-sun"></i></div>
           <h3 class="fw-bold text-dark h6 mb-2">Renewable Energy</h3>
-          <p class="text-muted mb-0" style="font-size: 12.5px; line-height: 1.6;">Following environmental solutions, clean technology transitions, and long-term climate compliance paths.</p>
+          <p class="text-muted mb-0" style="font-size: 12.5px; line-height: 1.6;">Following environmental solutions, clean technology transitions, and long-term climate compliance parts.</p>
         </div>
       </div>
 
@@ -292,7 +292,7 @@ include __DIR__."/header.php";
     <!-- CALL TO ACTION BANNER -->
     <div class="text-center bg-white border border-light-subtle rounded-4 p-4 p-md-5 shadow-sm mt-5">
       <h3 class="h4 fw-bold text-dark mb-2">Building the Future Together</h3>
-      <p class="text-muted small mb-4 mx-auto" style="max-width: 580px;">Bright Path Investment is more than a financial platform—it is a trusted partner dedicated to helping investors pursue opportunity, navigate change, and build lasting financial success.</p>
+      <p class="text-muted small mb-4 mx-auto" style="max-width: 580px;">Bright Part Investment is more than a financial platform—it is a trusted partner dedicated to helping investors pursue opportunity, navigate change, and build lasting financial success.</p>
       <a href="#" class="btn btn-success px-4 py-2.5 small fw-medium rounded-3 shadow-sm">
         Explore Investment Plans <i class="bi bi-arrow-right-short ms-1"></i>
       </a>

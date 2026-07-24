@@ -6,7 +6,7 @@
       <div class="col-lg-4 col-md-6">
         <a class="d-flex align-items-center fw-bold text-success fs-4 text-decoration-none mb-3" href="#">
           <i class="bi bi-graph-up-arrow me-2"></i>
-          <span>Bright Path</span>
+          <span>Bright Part</span>
         </a>
         <p class="text-muted small mb-4">
           Empowering global investors to navigate the cryptocurrency landscape with clarity, data-driven security strategies, and tailored capital growth terms.
@@ -67,7 +67,7 @@
     <div class="container">
       <div class="row align-items-center justify-content-between g-2">
         <div class="col-md-6 text-center text-md-start">
-          <span class="text-muted small">&copy; 2026 Bright Path Investment. All global rights reserved.</span>
+          <span class="text-muted small">&copy; 2026 Bright Part Investment. All global rights reserved.</span>
         </div>
         <div class="col-md-6 text-center text-md-end">
           <!-- Social Icons -->

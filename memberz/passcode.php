@@ -24,7 +24,7 @@
     <div class="text-center mb-4">
       <a class="d-inline-flex align-items-center fw-bold text-success fs-3 text-decoration-none" href="#">
         <i class="bi bi-graph-up-arrow me-2"></i>
-        <span>Bright Path</span>
+        <span>Bright Part</span>
       </a>
     </div>
 

@@ -16,7 +16,7 @@ include __DIR__."/header.php";
     
     <!-- Inline Subtext Description Segment -->
     <p class="text-success text-opacity-75 small mx-auto mb-4" style="max-width: 520px; font-size: 14px;">
-      Find answers to common inquiries regarding Bright Path Investment's operations, strategy, and client experience.
+      Find answers to common inquiries regarding Bright part Investment's operations, strategy, and client experience.
     </p>
 
     <!-- CENTERED BREADCRUMB NAVIGATION LAYOUT (Home / FAQ) -->
@@ -76,12 +76,12 @@ include __DIR__."/header.php";
           <div class="accordion-item border-bottom border-light-subtle">
             <h2 class="accordion-header">
               <button class="accordion-button collapsed fw-semibold py-4 text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapseOne" aria-expanded="false" aria-controls="faq-collapseOne">
-                What is Bright Path Investment's primary focus?
+                What is Bright Part Investment's primary focus?
               </button>
             </h2>
             <div id="faq-collapseOne" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
               <div class="accordion-body text-muted lh-lg small py-4">
-                Bright Path Investment is a global investment platform dedicated to delivering sophisticated financial solutions, fostering sustainable growth, and creating long-term value for investors. We leverage advanced technological frameworks and data-driven market insights to connect capital with high-yield opportunities across several key economic sectors.
+                Bright Part Investment is a global investment platform dedicated to delivering sophisticated financial solutions, fostering sustainable growth, and creating long-term value for investors. We leverage advanced technological frameworks and data-driven market insights to connect capital with high-yield opportunities across several key economic sectors.
               </div>
             </div>
           </div>

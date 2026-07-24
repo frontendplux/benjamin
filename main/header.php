@@ -66,12 +66,12 @@ window.smartsupp||(function(d) {
     </div>
 
     <!-- Mobile Toggler Button -->
-    <button class="navbar-toggler border-0 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#brightPathNavbar" aria-controls="brightPathNavbar" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler border-0 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#brightPartNavbar" aria-controls="brightPartNavbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <!-- Collapsible Menu Wrapper (Nav Links & Register Button) -->
-    <div class="collapse navbar-collapse" id="brightPathNavbar">
+    <div class="collapse navbar-collapse" id="brightPartNavbar">
       
       <!-- Primary Navigation Links -->
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium text-center text-lg-start">

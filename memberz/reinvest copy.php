@@ -75,7 +75,14 @@ if (!empty($user_uid)) {
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
           <div>
             <h5 class="fw-bold text-dark mb-1"><i class="bi bi-layers-half text-success me-2"></i>Investment Packages</h5>
-            <p class="text-muted small mb-0">Select a preferred plan to build your staking allocation.</p>
+            <p class="text-muted small mb-0">Select a preferred plan to build your staking allocation portfolio.</p>
+          </div>
+          <div class="bg-success-subtle border border-success-subtle text-success px-3 py-2 rounded-3 d-flex align-items-center gap-2">
+            <i class="bi bi-wallet2 fs-5"></i>
+            <div>
+                <span class="d-block small text-uppercase fw-semibold font-monospace" style="font-size: 10px; letter-spacing: 0.5px;">Wallet Balance</span>
+                <span class="fw-bold font-monospace">$<?= number_format($user_wallet_balance, 2) ?></span>
+            </div>
           </div>
         </div>
       </div>
